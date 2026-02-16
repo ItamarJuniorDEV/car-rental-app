@@ -15,6 +15,15 @@ class CreateLinesTable extends Migration
     {
         Schema::create('lines', function (Blueprint $table) {
             $table->id();
+
+            $table->foreignId('brand_id')->constrained('brands');
+
+            $table->string('name', 30);
+            $table->string('image', 100);
+            $table->integer('door_count');
+            $table->integer('seats');
+            $table->boolean('air_bag');
+            $table->boolean('abs');
             $table->timestamps();
         });
     }
