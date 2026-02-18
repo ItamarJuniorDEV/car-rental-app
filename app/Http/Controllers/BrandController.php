@@ -26,11 +26,13 @@ class BrandController extends Controller
 
     public function update(Request $request, Brand $brand)
     {
-        //
+        $brand->update($request->all());
+        return $brand;
     }
 
     public function destroy(Brand $brand)
     {
-        //
+        $brand->delete();
+        return $brand;
     }
 }
