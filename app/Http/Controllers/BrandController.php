@@ -14,11 +14,11 @@ class BrandController extends Controller
 
     public function store(Request $request)
     {
-        Brand::create($request->all());
-        return 'estamos aqui';
+        $brand = Brand::create($request->all());
+        return $brand;
     }
 
-    public function show(Brand $brand)
+    public function show(Braneeed $brand)
     {
         //
     }
