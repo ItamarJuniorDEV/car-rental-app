@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\UpdateClientRequest;
+use App\Http\Resources\ClientResource;
 use App\Repositories\Contracts\ClientRepositoryInterface;
+use Illuminate\Http\Request;
 
 class ClientController extends Controller
 {
@@ -15,28 +17,29 @@ class ClientController extends Controller
         $this->repository = $repository;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $clients = $this->repository->all();
-        return response()->json($clients, 200);
+        if ($request->has('name')) {
+            return ClientResource::collection($this->repository->search($request->name));
+        }
+
+        return ClientResource::collection($this->repository->paginate());
     }
 
     public function store(StoreClientRequest $request)
     {
         $client = $this->repository->create($request->validated());
-        return response()->json($client, 201);
+        return (new ClientResource($client))->response()->setStatusCode(201);
     }
 
     public function show($id)
     {
-        $client = $this->repository->find($id);
-        return response()->json($client, 200);
+        return new ClientResource($this->repository->find($id));
     }
 
     public function update(UpdateClientRequest $request, $id)
     {
-        $client = $this->repository->update($id, $request->validated());
-        return response()->json($client, 200);
+        return new ClientResource($this->repository->update($id, $request->validated()));
     }
 
     public function destroy($id)

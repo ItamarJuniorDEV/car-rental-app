@@ -12,17 +12,24 @@ class LineRepository extends BaseRepository implements LineRepositoryInterface
         $this->model = $line;
     }
 
-    public function findByBrand(int $brandId): array
+    public function paginate(int $perPage = 15)
     {
-        $lines = $this->model->all();
-        $result = [];
+        return $this->model->with('brand')->paginate($perPage);
+    }
 
-        foreach ($lines as $line) {
-            if ((int) $line->brand_id === $brandId) {
-                $result[] = $line;
-            }
+    public function find(int $id): \Illuminate\Database\Eloquent\Model
+    {
+        $record = $this->model->with('brand')->find($id);
+
+        if ($record === null) {
+            throw new \App\Exceptions\ResourceNotFoundException();
         }
 
-        return $result;
+        return $record;
+    }
+
+    public function findByBrand(int $brandId, int $perPage = 15)
+    {
+        return $this->model->with('brand')->where('brand_id', $brandId)->paginate($perPage);
     }
 }

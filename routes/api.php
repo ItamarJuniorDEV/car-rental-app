@@ -8,13 +8,14 @@ use App\Http\Controllers\RentalController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\LineController;
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth:api')->group(function () {
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+
+    Route::apiResource('clients', ClientController::class);
+    Route::apiResource('cars', CarController::class);
+    Route::apiResource('rentals', RentalController::class);
+    Route::apiResource('brands', BrandController::class);
+    Route::apiResource('lines', LineController::class);
 });
-
-
-Route::apiResource('clients', ClientController::class);
-Route::apiResource('cars', CarController::class);
-Route::apiResource('rentals', RentalController::class);
-Route::apiResource('brands', BrandController::class);
-Route::apiResource('lines', LineController::class);

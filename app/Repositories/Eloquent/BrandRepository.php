@@ -11,4 +11,9 @@ class BrandRepository extends BaseRepository implements BrandRepositoryInterface
     {
         $this->model = $brand;
     }
+
+    public function search(string $name)
+    {
+        return $this->model->where('name', 'like', "%{$name}%")->paginate(15);
+    }
 }

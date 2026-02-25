@@ -14,6 +14,11 @@ abstract class BaseRepository
         return $this->model->all();
     }
 
+    public function paginate(int $perPage = 15)
+    {
+        return $this->model->paginate($perPage);
+    }
+
     public function find(int $id): Model
     {
         $record = $this->model->find($id);

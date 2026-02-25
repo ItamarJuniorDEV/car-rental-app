@@ -12,37 +12,26 @@ class RentalPolicy
 
     public function viewAny(User $user)
     {
-        //
+        return true;
     }
 
     public function view(User $user, Rental $rental)
     {
-        //
+        return true;
     }
 
     public function create(User $user)
     {
-        //
+        return true;
     }
 
     public function update(User $user, Rental $rental)
     {
-        //
+        return true;
     }
 
     public function delete(User $user, Rental $rental)
     {
-        //
-    }
-
-
-    public function restore(User $user, Rental $rental)
-    {
-        //
-    }
-
-    public function forceDelete(User $user, Rental $rental)
-    {
-        //
+        return true;
     }
 }

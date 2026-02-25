@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreBrandRequest;
 use App\Http\Requests\UpdateBrandRequest;
+use App\Http\Resources\BrandResource;
 use App\Repositories\Contracts\BrandRepositoryInterface;
+use Illuminate\Http\Request;
 
 class BrandController extends Controller
 {
@@ -15,28 +17,29 @@ class BrandController extends Controller
         $this->repository = $repository;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $brands = $this->repository->all();
-        return response()->json($brands, 200);
+        if ($request->has('name')) {
+            return BrandResource::collection($this->repository->search($request->name));
+        }
+
+        return BrandResource::collection($this->repository->paginate());
     }
 
     public function store(StoreBrandRequest $request)
     {
         $brand = $this->repository->create($request->validated());
-        return response()->json($brand, 201);
+        return (new BrandResource($brand))->response()->setStatusCode(201);
     }
 
     public function show($id)
     {
-        $brand = $this->repository->find($id);
-        return response()->json($brand, 200);
+        return new BrandResource($this->repository->find($id));
     }
 
     public function update(UpdateBrandRequest $request, $id)
     {
-        $brand = $this->repository->update($id, $request->validated());
-        return response()->json($brand, 200);
+        return new BrandResource($this->repository->update($id, $request->validated()));
     }
 
     public function destroy($id)

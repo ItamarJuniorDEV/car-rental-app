@@ -12,17 +12,29 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
         $this->model = $car;
     }
 
-    public function findAvailable(): array
+    public function paginate(int $perPage = 15)
     {
-        $cars = $this->model->all();
-        $available = [];
+        return $this->model->with('line.brand')->paginate($perPage);
+    }
 
-        foreach ($cars as $car) {
-            if ($car->available === true) {
-                $available[] = $car;
-            }
+    public function find(int $id): \Illuminate\Database\Eloquent\Model
+    {
+        $record = $this->model->with('line.brand')->find($id);
+
+        if ($record === null) {
+            throw new \App\Exceptions\ResourceNotFoundException();
         }
 
-        return $available;
+        return $record;
+    }
+
+    public function findAvailable(int $perPage = 15)
+    {
+        return $this->model->with('line.brand')->where('available', true)->paginate($perPage);
+    }
+
+    public function searchByPlate(string $plate)
+    {
+        return $this->model->with('line.brand')->where('plate', 'like', "%{$plate}%")->paginate(15);
     }
 }

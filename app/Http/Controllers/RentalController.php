@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Exceptions\CarNotAvailableException;
 use App\Http\Requests\StoreRentalRequest;
 use App\Http\Requests\UpdateRentalRequest;
+use App\Http\Resources\RentalResource;
 use App\Repositories\Contracts\CarRepositoryInterface;
 use App\Repositories\Contracts\RentalRepositoryInterface;
+use Illuminate\Support\Facades\DB;
 
 class RentalController extends Controller
 {
@@ -23,8 +25,7 @@ class RentalController extends Controller
 
     public function index()
     {
-        $rentals = $this->repository->all();
-        return response()->json($rentals, 200);
+        return RentalResource::collection($this->repository->paginate());
     }
 
     public function store(StoreRentalRequest $request)
@@ -35,16 +36,18 @@ class RentalController extends Controller
             throw new CarNotAvailableException();
         }
 
-        $rental = $this->repository->create($request->validated());
-        $this->carRepository->update($car->id, ['available' => false]);
+        $rental = DB::transaction(function () use ($request, $car) {
+            $rental = $this->repository->create($request->validated());
+            $this->carRepository->update($car->id, ['available' => false]);
+            return $rental;
+        });
 
-        return response()->json($rental, 201);
+        return (new RentalResource($rental))->response()->setStatusCode(201);
     }
 
     public function show($id)
     {
-        $rental = $this->repository->find($id);
-        return response()->json($rental, 200);
+        return new RentalResource($this->repository->find($id));
     }
 
     public function update(UpdateRentalRequest $request, $id)
@@ -58,7 +61,7 @@ class RentalController extends Controller
             ]);
         }
 
-        return response()->json($rental, 200);
+        return new RentalResource($rental->fresh());
     }
 
     public function destroy($id)

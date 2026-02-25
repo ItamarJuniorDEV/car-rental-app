@@ -11,4 +11,9 @@ class ClientRepository extends BaseRepository implements ClientRepositoryInterfa
     {
         $this->model = $client;
     }
+
+    public function search(string $name)
+    {
+        return $this->model->where('name', 'like', "%{$name}%")->paginate(15);
+    }
 }
