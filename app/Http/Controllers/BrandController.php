@@ -2,62 +2,46 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Brand;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreBrandRequest;
+use App\Http\Requests\UpdateBrandRequest;
+use App\Repositories\Contracts\BrandRepositoryInterface;
 
 class BrandController extends Controller
 {
-    private Brand $brand;
+    private BrandRepositoryInterface $repository;
 
-    public function __construct(Brand $brand)
+    public function __construct(BrandRepositoryInterface $repository)
     {
-        $this->brand = $brand;
+        $this->repository = $repository;
     }
 
     public function index()
     {
-        // $brands = Brand::all();
-        $brands = $this->brand->all();
+        $brands = $this->repository->all();
         return response()->json($brands, 200);
     }
 
-    public function store(Request $request)
+    public function store(StoreBrandRequest $request)
     {
-        // $brands = Brand::create($request->all());
-        $brand = $this->brand->create($request->all());
+        $brand = $this->repository->create($request->validated());
         return response()->json($brand, 201);
     }
 
     public function show($id)
     {
-        // $brand = Brand::find($id);
-        $brand = $this->brand->find($id);
-        if ($brand === null) {
-            return response()->json(['erro' => 'Recurso pesquisado não existe!'], 404);
-        }
-
+        $brand = $this->repository->find($id);
         return response()->json($brand, 200);
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateBrandRequest $request, $id)
     {
-        $brand = $this->brand->find($id);
-
-        if ($brand === null) {
-            return response()->json(['erro' => 'Impossível realizar a atualização. O recurso solicitado não existe!'], 404);
-        }
-
-        $brand->update($request->all());
+        $brand = $this->repository->update($id, $request->validated());
         return response()->json($brand, 200);
     }
 
     public function destroy($id)
     {
-        $brand = $this->brand->find($id);
-        if ($brand === null) {
-            return response()->json(['erro' => 'Impossível realizar a exclusão. O recurso solicitado não existe'], 404);
-        }
-        $brand->delete();
-        return response()->json(["msg" => "A marca foi removida com sucesso!"], 200);
+        $this->repository->delete($id);
+        return response()->json(['msg' => 'A marca foi removida com sucesso!'], 200);
     }
 }

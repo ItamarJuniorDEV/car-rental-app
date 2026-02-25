@@ -13,18 +13,16 @@ class StoreCarRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
     public function rules()
     {
         return [
-            //
+            'line_id'   => 'required|integer|exists:lines,id',
+            'plate'     => 'required|string|max:10|unique:cars,plate',
+            'available' => 'required|boolean',
+            'km'        => 'required|integer|min:0',
         ];
     }
 }

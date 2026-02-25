@@ -2,84 +2,52 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Line;
+use App\Http\Requests\StoreLineRequest;
+use App\Http\Requests\UpdateLineRequest;
+use App\Repositories\Contracts\LineRepositoryInterface;
 use Illuminate\Http\Request;
 
 class LineController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    private LineRepositoryInterface $repository;
+
+    public function __construct(LineRepositoryInterface $repository)
     {
-        //
+        $this->repository = $repository;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function index(Request $request)
     {
-        //
+        if ($request->has('brand_id')) {
+            $lines = $this->repository->findByBrand((int) $request->brand_id);
+            return response()->json($lines, 200);
+        }
+
+        $lines = $this->repository->all();
+        return response()->json($lines, 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function store(StoreLineRequest $request)
     {
-        //
+        $line = $this->repository->create($request->validated());
+        return response()->json($line, 201);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Line  $line
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Line $line)
+    public function show($id)
     {
-        //
+        $line = $this->repository->find($id);
+        return response()->json($line, 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Line  $line
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Line $line)
+    public function update(UpdateLineRequest $request, $id)
     {
-        //
+        $line = $this->repository->update($id, $request->validated());
+        return response()->json($line, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Line  $line
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Line $line)
+    public function destroy($id)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Line  $line
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Line $line)
-    {
-        //
+        $this->repository->delete($id);
+        return response()->json(['msg' => 'A linha foi removida com sucesso!'], 200);
     }
 }

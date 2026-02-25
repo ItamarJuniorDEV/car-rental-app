@@ -4,83 +4,50 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCarRequest;
 use App\Http\Requests\UpdateCarRequest;
-use App\Models\Car;
+use App\Repositories\Contracts\CarRepositoryInterface;
+use Illuminate\Http\Request;
 
 class CarController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    private CarRepositoryInterface $repository;
+
+    public function __construct(CarRepositoryInterface $repository)
     {
-        //
+        $this->repository = $repository;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function index(Request $request)
     {
-        //
+        if ($request->has('available')) {
+            $cars = $this->repository->findAvailable();
+            return response()->json($cars, 200);
+        }
+
+        $cars = $this->repository->all();
+        return response()->json($cars, 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreCarRequest  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(StoreCarRequest $request)
     {
-        //
+        $car = $this->repository->create($request->validated());
+        return response()->json($car, 201);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Car  $car
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Car $car)
+    public function show($id)
     {
-        //
+        $car = $this->repository->find($id);
+        return response()->json($car, 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Car  $car
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Car $car)
+    public function update(UpdateCarRequest $request, $id)
     {
-        //
+        $car = $this->repository->update($id, $request->validated());
+        return response()->json($car, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateCarRequest  $request
-     * @param  \App\Models\Car  $car
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateCarRequest $request, Car $car)
+    public function destroy($id)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Car  $car
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Car $car)
-    {
-        //
+        $this->repository->delete($id);
+        return response()->json(['msg' => 'O veículo foi removido com sucesso!'], 200);
     }
 }

@@ -4,83 +4,44 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\UpdateClientRequest;
-use App\Models\Client;
+use App\Repositories\Contracts\ClientRepositoryInterface;
 
 class ClientController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    private ClientRepositoryInterface $repository;
+
+    public function __construct(ClientRepositoryInterface $repository)
+    {
+        $this->repository = $repository;
+    }
+
     public function index()
     {
-        //
+        $clients = $this->repository->all();
+        return response()->json($clients, 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreClientRequest  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(StoreClientRequest $request)
     {
-        //
+        $client = $this->repository->create($request->validated());
+        return response()->json($client, 201);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Client  $client
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Client $client)
+    public function show($id)
     {
-        //
+        $client = $this->repository->find($id);
+        return response()->json($client, 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Client  $client
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Client $client)
+    public function update(UpdateClientRequest $request, $id)
     {
-        //
+        $client = $this->repository->update($id, $request->validated());
+        return response()->json($client, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateClientRequest  $request
-     * @param  \App\Models\Client  $client
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateClientRequest $request, Client $client)
+    public function destroy($id)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Client  $client
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Client $client)
-    {
-        //
+        $this->repository->delete($id);
+        return response()->json(['msg' => 'O cliente foi removido com sucesso!'], 200);
     }
 }

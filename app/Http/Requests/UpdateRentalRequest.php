@@ -13,18 +13,14 @@ class UpdateRentalRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
     public function rules()
     {
         return [
-            //
+            'period_actual_end_date' => 'sometimes|date',
+            'final_km'               => 'sometimes|integer|min:0|required_with:period_actual_end_date',
         ];
     }
 }
