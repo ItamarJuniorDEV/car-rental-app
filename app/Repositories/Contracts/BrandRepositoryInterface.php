@@ -4,7 +4,6 @@ namespace App\Repositories\Contracts;
 
 interface BrandRepositoryInterface
 {
-    public function all();
     public function paginate(int $perPage = 15);
     public function find(int $id);
     public function search(string $name);

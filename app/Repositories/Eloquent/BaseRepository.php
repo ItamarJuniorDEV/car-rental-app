@@ -9,11 +9,6 @@ abstract class BaseRepository
 {
     protected Model $model;
 
-    public function all()
-    {
-        return $this->model->all();
-    }
-
     public function paginate(int $perPage = 15)
     {
         return $this->model->paginate($perPage);
