@@ -32,6 +32,6 @@ class CarPolicy
 
     public function delete(User $user, Car $car)
     {
-        return true;
+        return $user->isAdmin();
     }
 }

@@ -15,7 +15,8 @@ class RentalTest extends TestCase
 {
     use RefreshDatabase;
 
-    private User $user;
+    private User $admin;
+    private User $operador;
     private Client $client;
     private Car $car;
 
@@ -23,7 +24,8 @@ class RentalTest extends TestCase
     {
         parent::setUp();
 
-        $this->user = User::factory()->create();
+        $this->admin    = User::factory()->admin()->create();
+        $this->operador = User::factory()->create();
 
         $brand = Brand::create(['name' => 'Toyota', 'image' => 'toyota.png']);
 
@@ -61,7 +63,7 @@ class RentalTest extends TestCase
 
     public function test_pode_criar_locacao()
     {
-        $response = $this->withToken($this->user->api_token)
+        $response = $this->actingAs($this->operador, 'sanctum')
             ->postJson('/api/rentals', $this->dadosLocacao());
 
         $response->assertStatus(201);
@@ -72,7 +74,7 @@ class RentalTest extends TestCase
     {
         $this->car->update(['available' => false]);
 
-        $response = $this->withToken($this->user->api_token)
+        $response = $this->actingAs($this->operador, 'sanctum')
             ->postJson('/api/rentals', $this->dadosLocacao());
 
         $response->assertStatus(422);
@@ -82,7 +84,7 @@ class RentalTest extends TestCase
     {
         $rental = $this->criarLocacao();
 
-        $response = $this->withToken($this->user->api_token)
+        $response = $this->actingAs($this->operador, 'sanctum')
             ->putJson("/api/rentals/{$rental->id}", [
                 'period_actual_end_date' => '2026-03-05 08:00:00',
                 'final_km'               => 14000,
@@ -95,7 +97,7 @@ class RentalTest extends TestCase
     {
         $rental = $this->criarLocacao();
 
-        $response = $this->withToken($this->user->api_token)
+        $response = $this->actingAs($this->operador, 'sanctum')
             ->putJson("/api/rentals/{$rental->id}", [
                 'period_actual_end_date' => '2026-02-28 08:00:00',
                 'final_km'               => 15500,
@@ -108,7 +110,7 @@ class RentalTest extends TestCase
     {
         $rental = $this->criarLocacao();
 
-        $this->withToken($this->user->api_token)
+        $this->actingAs($this->operador, 'sanctum')
             ->putJson("/api/rentals/{$rental->id}", [
                 'period_actual_end_date' => '2026-03-05 08:00:00',
                 'final_km'               => 15800,
@@ -123,7 +125,7 @@ class RentalTest extends TestCase
     {
         $rental = $this->criarLocacao();
 
-        $response = $this->withToken($this->user->api_token)
+        $response = $this->actingAs($this->operador, 'sanctum')
             ->putJson("/api/rentals/{$rental->id}", [
                 'period_actual_end_date' => '2026-03-07 08:00:00',
                 'final_km'               => 15800,
@@ -140,7 +142,7 @@ class RentalTest extends TestCase
     {
         $this->criarLocacao();
 
-        $response = $this->withToken($this->user->api_token)
+        $response = $this->actingAs($this->admin, 'sanctum')
             ->deleteJson("/api/cars/{$this->car->id}");
 
         $response->assertStatus(422);
@@ -150,7 +152,7 @@ class RentalTest extends TestCase
     {
         $this->criarLocacao();
 
-        $response = $this->withToken($this->user->api_token)
+        $response = $this->actingAs($this->operador, 'sanctum')
             ->deleteJson("/api/clients/{$this->client->id}");
 
         $response->assertStatus(422);
@@ -158,7 +160,7 @@ class RentalTest extends TestCase
 
     private function criarLocacao(): Rental
     {
-        $response = $this->withToken($this->user->api_token)
+        $response = $this->actingAs($this->operador, 'sanctum')
             ->postJson('/api/rentals', $this->dadosLocacao());
 
         return Rental::find($response->json('data.id'));

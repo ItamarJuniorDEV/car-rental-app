@@ -65,10 +65,9 @@ class AuthTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->withToken($user->api_token)->postJson('/api/logout');
+        $response = $this->actingAs($user, 'sanctum')->postJson('/api/logout');
 
         $response->assertOk();
-        $this->assertNull($user->fresh()->api_token);
     }
 
     public function test_requisicao_sem_token_retorna_401()

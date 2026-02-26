@@ -32,6 +32,6 @@ class LinePolicy
 
     public function delete(User $user, Line $line)
     {
-        return true;
+        return $user->isAdmin();
     }
 }

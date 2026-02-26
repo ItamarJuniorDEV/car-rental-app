@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
 
@@ -32,7 +31,7 @@ class AuthController extends Controller
                 response: 201,
                 description: 'Usuário criado',
                 content: new OA\JsonContent(
-                    properties: [new OA\Property(property: 'token', type: 'string', example: 'abc123...')]
+                    properties: [new OA\Property(property: 'token', type: 'string', example: '1|abc123...')]
                 )
             ),
             new OA\Response(response: 422, description: 'Dados inválidos'),
@@ -41,19 +40,20 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $data = $request->validate([
-            'name'                  => 'required|string|max:255',
-            'email'                 => 'required|string|email|max:255|unique:users',
-            'password'              => 'required|string|min:8|confirmed',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
         $user = User::create([
-            'name'      => $data['name'],
-            'email'     => $data['email'],
-            'password'  => Hash::make($data['password']),
-            'api_token' => Str::random(80),
+            'name'     => $data['name'],
+            'email'    => $data['email'],
+            'password' => Hash::make($data['password']),
         ]);
 
-        return response()->json(['token' => $user->api_token], 201);
+        $token = $user->createToken('auth')->plainTextToken;
+
+        return response()->json(['token' => $token], 201);
     }
 
     #[OA\Post(
@@ -75,7 +75,7 @@ class AuthController extends Controller
                 response: 200,
                 description: 'Autenticado',
                 content: new OA\JsonContent(
-                    properties: [new OA\Property(property: 'token', type: 'string', example: 'abc123...')]
+                    properties: [new OA\Property(property: 'token', type: 'string', example: '2|abc123...')]
                 )
             ),
             new OA\Response(response: 422, description: 'Credenciais inválidas'),
@@ -96,10 +96,10 @@ class AuthController extends Controller
             ]);
         }
 
-        $user->api_token = Str::random(80);
-        $user->save();
+        $user->tokens()->delete();
+        $token = $user->createToken('auth')->plainTextToken;
 
-        return response()->json(['token' => $user->api_token]);
+        return response()->json(['token' => $token]);
     }
 
     #[OA\Post(
@@ -120,7 +120,7 @@ class AuthController extends Controller
     )]
     public function logout(Request $request)
     {
-        $request->user()->update(['api_token' => null]);
+        $request->user()->tokens()->delete();
 
         return response()->json(['msg' => 'Logout realizado com sucesso.']);
     }

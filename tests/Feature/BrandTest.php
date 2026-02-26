@@ -11,12 +11,14 @@ class BrandTest extends TestCase
 {
     use RefreshDatabase;
 
-    private User $user;
+    private User $admin;
+    private User $operador;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
+        $this->admin    = User::factory()->admin()->create();
+        $this->operador = User::factory()->create();
     }
 
     public function test_pode_listar_marcas()
@@ -24,14 +26,14 @@ class BrandTest extends TestCase
         Brand::create(['name' => 'Toyota', 'image' => 'toyota.png']);
         Brand::create(['name' => 'Honda', 'image' => 'honda.png']);
 
-        $response = $this->withToken($this->user->api_token)->getJson('/api/brands');
+        $response = $this->actingAs($this->operador, 'sanctum')->getJson('/api/brands');
 
         $response->assertOk()->assertJsonCount(2, 'data');
     }
 
     public function test_pode_criar_marca()
     {
-        $response = $this->withToken($this->user->api_token)->postJson('/api/brands', [
+        $response = $this->actingAs($this->operador, 'sanctum')->postJson('/api/brands', [
             'name'  => 'Volkswagen',
             'image' => 'vw.png',
         ]);
@@ -44,7 +46,7 @@ class BrandTest extends TestCase
     {
         Brand::create(['name' => 'Toyota', 'image' => 'toyota.png']);
 
-        $response = $this->withToken($this->user->api_token)->postJson('/api/brands', [
+        $response = $this->actingAs($this->operador, 'sanctum')->postJson('/api/brands', [
             'name'  => 'Toyota',
             'image' => 'outra.png',
         ]);
@@ -56,7 +58,7 @@ class BrandTest extends TestCase
     {
         $brand = Brand::create(['name' => 'Toiota', 'image' => 'toyota.png']);
 
-        $response = $this->withToken($this->user->api_token)->putJson("/api/brands/{$brand->id}", [
+        $response = $this->actingAs($this->operador, 'sanctum')->putJson("/api/brands/{$brand->id}", [
             'name' => 'Toyota',
         ]);
 
@@ -64,14 +66,23 @@ class BrandTest extends TestCase
         $this->assertDatabaseHas('brands', ['id' => $brand->id, 'name' => 'Toyota']);
     }
 
-    public function test_pode_deletar_marca()
+    public function test_admin_pode_deletar_marca()
     {
         $brand = Brand::create(['name' => 'Toyota', 'image' => 'toyota.png']);
 
-        $response = $this->withToken($this->user->api_token)->deleteJson("/api/brands/{$brand->id}");
+        $response = $this->actingAs($this->admin, 'sanctum')->deleteJson("/api/brands/{$brand->id}");
 
         $response->assertOk();
         $this->assertSoftDeleted('brands', ['id' => $brand->id]);
+    }
+
+    public function test_operador_nao_pode_deletar_marca()
+    {
+        $brand = Brand::create(['name' => 'Toyota', 'image' => 'toyota.png']);
+
+        $response = $this->actingAs($this->operador, 'sanctum')->deleteJson("/api/brands/{$brand->id}");
+
+        $response->assertStatus(403);
     }
 
     public function test_sem_autenticacao_retorna_401()
@@ -86,7 +97,7 @@ class BrandTest extends TestCase
 
     public function test_marca_inexistente_retorna_404()
     {
-        $response = $this->withToken($this->user->api_token)->getJson('/api/brands/9999');
+        $response = $this->actingAs($this->operador, 'sanctum')->getJson('/api/brands/9999');
 
         $response->assertStatus(404);
     }

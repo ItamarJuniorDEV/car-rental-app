@@ -17,8 +17,13 @@ class UserFactory extends Factory
             'email'             => $this->faker->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password'          => bcrypt('password'),
-            'api_token'         => Str::random(80),
+            'role'              => 'operador',
             'remember_token'    => Str::random(10),
         ];
+    }
+
+    public function admin()
+    {
+        return $this->state(['role' => 'admin']);
     }
 }
