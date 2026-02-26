@@ -15,7 +15,7 @@ class UpdateBrandRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'  => ['sometimes', 'string', 'max:30', Rule::unique('brands', 'name')->ignore($this->route('brand'))],
+            'name' => ['sometimes', 'string', 'max:30', Rule::unique('brands', 'name')->ignore($this->route('brand'))],
             'image' => 'sometimes|string|max:100',
         ];
     }

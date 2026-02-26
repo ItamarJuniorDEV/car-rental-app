@@ -15,4 +15,6 @@ docs.txt
 .claude/
 sail
 docker/
+resources/views/errors/
+resources/views/vendor/
 

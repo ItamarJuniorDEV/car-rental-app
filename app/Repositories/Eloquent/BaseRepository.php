@@ -19,7 +19,7 @@ abstract class BaseRepository
         $record = $this->model->find($id);
 
         if ($record === null) {
-            throw new ResourceNotFoundException();
+            throw new ResourceNotFoundException;
         }
 
         return $record;

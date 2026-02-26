@@ -8,7 +8,7 @@ class SwaggerController extends Controller
 {
     public function json()
     {
-        $openapi = (new Generator())->generate([app_path()]);
+        $openapi = (new Generator)->generate([app_path()]);
 
         return response($openapi->toJson(), 200, ['Content-Type' => 'application/json']);
     }

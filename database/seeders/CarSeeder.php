@@ -40,16 +40,16 @@ class CarSeeder extends Seeder
         $plateIndex = 0;
 
         foreach ($catalog as $brandName => $lines) {
-            $brand = Brand::create(['name' => $brandName, 'image' => strtolower($brandName) . '.png']);
+            $brand = Brand::create(['name' => $brandName, 'image' => strtolower($brandName).'.png']);
 
             foreach ($lines as $lineData) {
                 $line = Line::create(array_merge(['brand_id' => $brand->id], $lineData));
 
                 Car::create([
-                    'line_id'   => $line->id,
-                    'plate'     => $plates[$plateIndex],
+                    'line_id' => $line->id,
+                    'plate' => $plates[$plateIndex],
                     'available' => true,
-                    'km'        => $kms[$plateIndex],
+                    'km' => $kms[$plateIndex],
                 ]);
 
                 $plateIndex++;

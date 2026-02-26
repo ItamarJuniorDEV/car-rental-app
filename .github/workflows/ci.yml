@@ -25,4 +25,8 @@ jobs:
 
       - run: php artisan key:generate
 
+      - run: ./vendor/bin/pint --test
+
+      - run: ./vendor/bin/phpstan analyse --no-progress
+
       - run: php artisan test

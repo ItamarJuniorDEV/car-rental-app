@@ -13,12 +13,13 @@ class LineTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $operador;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->admin    = User::factory()->admin()->create();
+        $this->admin = User::factory()->admin()->create();
         $this->operador = User::factory()->create();
     }
 
@@ -28,7 +29,9 @@ class LineTest extends TestCase
 
         $response = $this->actingAs($this->operador, 'sanctum')->getJson('/api/lines');
 
-        $response->assertOk()->assertJsonCount(3, 'data');
+        $response->assertOk()
+            ->assertJsonStructure(['data', 'links', 'meta'])
+            ->assertJsonCount(3, 'data');
     }
 
     public function test_filtro_por_marca()
@@ -47,13 +50,13 @@ class LineTest extends TestCase
         $brand = Brand::factory()->create();
 
         $response = $this->actingAs($this->admin, 'sanctum')->postJson('/api/lines', [
-            'brand_id'   => $brand->id,
-            'name'       => 'Corolla',
-            'image'      => 'corolla.png',
+            'brand_id' => $brand->id,
+            'name' => 'Corolla',
+            'image' => 'corolla.png',
             'door_count' => 4,
-            'seats'      => 5,
-            'air_bag'    => true,
-            'abs'        => true,
+            'seats' => 5,
+            'air_bag' => true,
+            'abs' => true,
         ]);
 
         $response->assertStatus(201);
@@ -65,13 +68,13 @@ class LineTest extends TestCase
         $brand = Brand::factory()->create();
 
         $response = $this->actingAs($this->operador, 'sanctum')->postJson('/api/lines', [
-            'brand_id'   => $brand->id,
-            'name'       => 'Corolla',
-            'image'      => 'corolla.png',
+            'brand_id' => $brand->id,
+            'name' => 'Corolla',
+            'image' => 'corolla.png',
             'door_count' => 4,
-            'seats'      => 5,
-            'air_bag'    => true,
-            'abs'        => true,
+            'seats' => 5,
+            'air_bag' => true,
+            'abs' => true,
         ]);
 
         $response->assertStatus(403);

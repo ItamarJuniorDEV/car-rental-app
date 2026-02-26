@@ -15,10 +15,10 @@ class UpdateCarRequest extends FormRequest
     public function rules()
     {
         return [
-            'line_id'   => 'sometimes|integer|exists:lines,id',
-            'plate'     => ['sometimes', 'string', 'max:10', Rule::unique('cars', 'plate')->ignore($this->route('car'))],
+            'line_id' => 'sometimes|integer|exists:lines,id',
+            'plate' => ['sometimes', 'string', 'max:10', Rule::unique('cars', 'plate')->ignore($this->route('car'))],
             'available' => 'sometimes|boolean',
-            'km'        => 'sometimes|integer|min:0',
+            'km' => 'sometimes|integer|min:0',
         ];
     }
 }

@@ -22,9 +22,9 @@ class Rental extends Model
     ];
 
     protected $casts = [
-        'period_start_date'        => 'datetime',
+        'period_start_date' => 'datetime',
         'period_expected_end_date' => 'datetime',
-        'period_actual_end_date'   => 'datetime',
+        'period_actual_end_date' => 'datetime',
     ];
 
     public function client()

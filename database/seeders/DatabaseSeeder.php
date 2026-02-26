@@ -10,10 +10,10 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         User::create([
-            'name'     => 'Admin',
-            'email'    => 'admin@locadora.com',
+            'name' => 'Admin',
+            'email' => 'admin@locadora.com',
             'password' => bcrypt('senha123'),
-            'role'     => 'admin',
+            'role' => 'admin',
         ]);
 
         $this->call([

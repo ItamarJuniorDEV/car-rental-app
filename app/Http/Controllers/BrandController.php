@@ -53,7 +53,7 @@ class BrandController extends Controller
             content: new OA\JsonContent(
                 required: ['name', 'image'],
                 properties: [
-                    new OA\Property(property: 'name',  type: 'string', maxLength: 30,  example: 'Toyota'),
+                    new OA\Property(property: 'name', type: 'string', maxLength: 30, example: 'Toyota'),
                     new OA\Property(property: 'image', type: 'string', maxLength: 100, example: 'toyota.png'),
                 ]
             )
@@ -69,6 +69,7 @@ class BrandController extends Controller
         $this->authorize('create', Brand::class);
 
         $brand = $this->repository->create($request->validated());
+
         return (new BrandResource($brand))->response()->setStatusCode(201);
     }
 
@@ -105,7 +106,7 @@ class BrandController extends Controller
         requestBody: new OA\RequestBody(
             content: new OA\JsonContent(
                 properties: [
-                    new OA\Property(property: 'name',  type: 'string', maxLength: 30),
+                    new OA\Property(property: 'name', type: 'string', maxLength: 30),
                     new OA\Property(property: 'image', type: 'string', maxLength: 100),
                 ]
             )
@@ -145,6 +146,7 @@ class BrandController extends Controller
         $this->authorize('delete', $brand);
 
         $this->repository->delete($id);
+
         return response()->json(['msg' => 'A marca foi removida com sucesso!'], 200);
     }
 }

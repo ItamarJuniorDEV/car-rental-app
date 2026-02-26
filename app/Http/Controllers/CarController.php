@@ -26,7 +26,7 @@ class CarController extends Controller
         tags: ['Veículos'],
         security: [['bearerAuth' => []]],
         parameters: [
-            new OA\Parameter(name: 'plate',     in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'plate', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'available', in: 'query', required: false, schema: new OA\Schema(type: 'boolean')),
         ],
         responses: [
@@ -59,10 +59,10 @@ class CarController extends Controller
             content: new OA\JsonContent(
                 required: ['line_id', 'plate', 'available', 'km'],
                 properties: [
-                    new OA\Property(property: 'line_id',   type: 'integer', example: 1),
-                    new OA\Property(property: 'plate',     type: 'string',  maxLength: 10, example: 'ABC-1D23'),
+                    new OA\Property(property: 'line_id', type: 'integer', example: 1),
+                    new OA\Property(property: 'plate', type: 'string', maxLength: 10, example: 'ABC-1D23'),
                     new OA\Property(property: 'available', type: 'boolean', example: true),
-                    new OA\Property(property: 'km',        type: 'integer', minimum: 0,   example: 15000),
+                    new OA\Property(property: 'km', type: 'integer', minimum: 0, example: 15000),
                 ]
             )
         ),
@@ -77,6 +77,7 @@ class CarController extends Controller
         $this->authorize('create', Car::class);
 
         $car = $this->repository->create($request->validated());
+
         return (new CarResource($car))->response()->setStatusCode(201);
     }
 
@@ -113,10 +114,10 @@ class CarController extends Controller
         requestBody: new OA\RequestBody(
             content: new OA\JsonContent(
                 properties: [
-                    new OA\Property(property: 'line_id',   type: 'integer'),
-                    new OA\Property(property: 'plate',     type: 'string',  maxLength: 10),
+                    new OA\Property(property: 'line_id', type: 'integer'),
+                    new OA\Property(property: 'plate', type: 'string', maxLength: 10),
                     new OA\Property(property: 'available', type: 'boolean'),
-                    new OA\Property(property: 'km',        type: 'integer', minimum: 0),
+                    new OA\Property(property: 'km', type: 'integer', minimum: 0),
                 ]
             )
         ),
@@ -160,6 +161,7 @@ class CarController extends Controller
         }
 
         $this->repository->delete($id);
+
         return response()->json(['msg' => 'O veículo foi removido com sucesso!'], 200);
     }
 }

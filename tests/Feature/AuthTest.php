@@ -13,9 +13,9 @@ class AuthTest extends TestCase
     public function test_usuario_pode_se_registrar()
     {
         $response = $this->postJson('/api/register', [
-            'name'                  => 'João Silva',
-            'email'                 => 'joao@example.com',
-            'password'              => 'senha1234',
+            'name' => 'João Silva',
+            'email' => 'joao@example.com',
+            'password' => 'senha1234',
             'password_confirmation' => 'senha1234',
         ]);
 
@@ -28,9 +28,9 @@ class AuthTest extends TestCase
         User::factory()->create(['email' => 'joao@example.com']);
 
         $response = $this->postJson('/api/register', [
-            'name'                  => 'Outro João',
-            'email'                 => 'joao@example.com',
-            'password'              => 'senha1234',
+            'name' => 'Outro João',
+            'email' => 'joao@example.com',
+            'password' => 'senha1234',
             'password_confirmation' => 'senha1234',
         ]);
 
@@ -42,7 +42,7 @@ class AuthTest extends TestCase
         $user = User::factory()->create(['password' => bcrypt('senha1234')]);
 
         $response = $this->postJson('/api/login', [
-            'email'    => $user->email,
+            'email' => $user->email,
             'password' => 'senha1234',
         ]);
 
@@ -54,7 +54,7 @@ class AuthTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->postJson('/api/login', [
-            'email'    => $user->email,
+            'email' => $user->email,
             'password' => 'senha_errada',
         ]);
 

@@ -22,7 +22,7 @@ class Line extends Model
 
     protected $casts = [
         'air_bag' => 'boolean',
-        'abs'     => 'boolean',
+        'abs' => 'boolean',
     ];
 
     public function brand()

@@ -22,7 +22,7 @@ class LineRepository extends BaseRepository implements LineRepositoryInterface
         $record = $this->model->with('brand')->find($id);
 
         if ($record === null) {
-            throw new \App\Exceptions\ResourceNotFoundException();
+            throw new \App\Exceptions\ResourceNotFoundException;
         }
 
         return $record;

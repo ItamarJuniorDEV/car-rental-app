@@ -53,13 +53,13 @@ class LineController extends Controller
             content: new OA\JsonContent(
                 required: ['brand_id', 'name', 'image', 'door_count', 'seats', 'air_bag', 'abs'],
                 properties: [
-                    new OA\Property(property: 'brand_id',   type: 'integer', example: 1),
-                    new OA\Property(property: 'name',       type: 'string',  maxLength: 30,  example: 'Corolla'),
-                    new OA\Property(property: 'image',      type: 'string',  maxLength: 100, example: 'corolla.png'),
-                    new OA\Property(property: 'door_count', type: 'integer', minimum: 1,     example: 4),
-                    new OA\Property(property: 'seats',      type: 'integer', minimum: 1,     example: 5),
-                    new OA\Property(property: 'air_bag',    type: 'boolean', example: true),
-                    new OA\Property(property: 'abs',        type: 'boolean', example: true),
+                    new OA\Property(property: 'brand_id', type: 'integer', example: 1),
+                    new OA\Property(property: 'name', type: 'string', maxLength: 30, example: 'Corolla'),
+                    new OA\Property(property: 'image', type: 'string', maxLength: 100, example: 'corolla.png'),
+                    new OA\Property(property: 'door_count', type: 'integer', minimum: 1, example: 4),
+                    new OA\Property(property: 'seats', type: 'integer', minimum: 1, example: 5),
+                    new OA\Property(property: 'air_bag', type: 'boolean', example: true),
+                    new OA\Property(property: 'abs', type: 'boolean', example: true),
                 ]
             )
         ),
@@ -74,6 +74,7 @@ class LineController extends Controller
         $this->authorize('create', Line::class);
 
         $line = $this->repository->create($request->validated());
+
         return (new LineResource($line))->response()->setStatusCode(201);
     }
 
@@ -110,13 +111,13 @@ class LineController extends Controller
         requestBody: new OA\RequestBody(
             content: new OA\JsonContent(
                 properties: [
-                    new OA\Property(property: 'brand_id',   type: 'integer'),
-                    new OA\Property(property: 'name',       type: 'string',  maxLength: 30),
-                    new OA\Property(property: 'image',      type: 'string',  maxLength: 100),
+                    new OA\Property(property: 'brand_id', type: 'integer'),
+                    new OA\Property(property: 'name', type: 'string', maxLength: 30),
+                    new OA\Property(property: 'image', type: 'string', maxLength: 100),
                     new OA\Property(property: 'door_count', type: 'integer', minimum: 1),
-                    new OA\Property(property: 'seats',      type: 'integer', minimum: 1),
-                    new OA\Property(property: 'air_bag',    type: 'boolean'),
-                    new OA\Property(property: 'abs',        type: 'boolean'),
+                    new OA\Property(property: 'seats', type: 'integer', minimum: 1),
+                    new OA\Property(property: 'air_bag', type: 'boolean'),
+                    new OA\Property(property: 'abs', type: 'boolean'),
                 ]
             )
         ),
@@ -155,6 +156,7 @@ class LineController extends Controller
         $this->authorize('delete', $line);
 
         $this->repository->delete($id);
+
         return response()->json(['msg' => 'A linha foi removida com sucesso!'], 200);
     }
 }

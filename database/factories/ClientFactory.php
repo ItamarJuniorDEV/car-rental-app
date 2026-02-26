@@ -20,8 +20,8 @@ class ClientFactory extends Factory
         );
 
         return [
-            'name'  => $this->faker->name(),
-            'cpf'   => $cpf,
+            'name' => $this->faker->name(),
+            'cpf' => $cpf,
             'email' => $this->faker->unique()->safeEmail(),
             'phone' => $this->faker->numerify('(##) #####-####'),
         ];

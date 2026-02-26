@@ -14,10 +14,10 @@ class StoreCarRequest extends FormRequest
     public function rules()
     {
         return [
-            'line_id'   => 'required|integer|exists:lines,id',
-            'plate'     => 'required|string|max:10|unique:cars,plate',
+            'line_id' => 'required|integer|exists:lines,id',
+            'plate' => 'required|string|max:10|unique:cars,plate',
             'available' => 'required|boolean',
-            'km'        => 'required|integer|min:0',
+            'km' => 'required|integer|min:0',
         ];
     }
 }

@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateBrandsTable extends Migration
 {
-
     public function up()
     {
         Schema::create('brands', function (Blueprint $table) {

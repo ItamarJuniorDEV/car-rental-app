@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateLinesTable extends Migration
 {
-
     public function up()
     {
         Schema::create('lines', function (Blueprint $table) {

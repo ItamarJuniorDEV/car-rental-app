@@ -1,5 +1,7 @@
 # Locadora API
 
+![CI](https://github.com/ItamarJuniorDEV/car-rental-app/actions/workflows/ci.yml/badge.svg)
+
 API REST para gerenciamento de locação de veículos. Desenvolvida como projeto de portfólio para consolidar conceitos de arquitetura em camadas com Laravel — repository pattern, autenticação por token, políticas de acesso e testes automatizados.
 
 A ideia surgiu de uma conversa com o dono de uma locadora pequena que controlava tudo em planilhas do Excel: qual carro estava disponível, quem tinha alugado, quilometragem de saída e retorno. O sistema nunca chegou a ser implantado, mas serviu de base pra eu estruturar uma API de verdade com as preocupações que aparecem em projetos reais — race condition no momento do aluguel, soft delete pra não perder histórico, multa por atraso na devolução.

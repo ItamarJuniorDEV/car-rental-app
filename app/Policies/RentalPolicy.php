@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Rental;
 use App\Models\User;
+
 class RentalPolicy
 {
     public function viewAny(User $user): bool

@@ -54,10 +54,10 @@ class ClientController extends Controller
             content: new OA\JsonContent(
                 required: ['name', 'cpf', 'email', 'phone'],
                 properties: [
-                    new OA\Property(property: 'name',  type: 'string',  maxLength: 100, example: 'Maria Souza'),
-                    new OA\Property(property: 'cpf',   type: 'string',  example: '123.456.789-00'),
-                    new OA\Property(property: 'email', type: 'string',  format: 'email', example: 'maria@exemplo.com'),
-                    new OA\Property(property: 'phone', type: 'string',  maxLength: 20,  example: '(11) 99999-0000'),
+                    new OA\Property(property: 'name', type: 'string', maxLength: 100, example: 'Maria Souza'),
+                    new OA\Property(property: 'cpf', type: 'string', example: '123.456.789-00'),
+                    new OA\Property(property: 'email', type: 'string', format: 'email', example: 'maria@exemplo.com'),
+                    new OA\Property(property: 'phone', type: 'string', maxLength: 20, example: '(11) 99999-0000'),
                 ]
             )
         ),
@@ -72,6 +72,7 @@ class ClientController extends Controller
         $this->authorize('create', Client::class);
 
         $client = $this->repository->create($request->validated());
+
         return (new ClientResource($client))->response()->setStatusCode(201);
     }
 
@@ -108,10 +109,10 @@ class ClientController extends Controller
         requestBody: new OA\RequestBody(
             content: new OA\JsonContent(
                 properties: [
-                    new OA\Property(property: 'name',  type: 'string',  maxLength: 100),
-                    new OA\Property(property: 'cpf',   type: 'string'),
-                    new OA\Property(property: 'email', type: 'string',  format: 'email'),
-                    new OA\Property(property: 'phone', type: 'string',  maxLength: 20),
+                    new OA\Property(property: 'name', type: 'string', maxLength: 100),
+                    new OA\Property(property: 'cpf', type: 'string'),
+                    new OA\Property(property: 'email', type: 'string', format: 'email'),
+                    new OA\Property(property: 'phone', type: 'string', maxLength: 20),
                 ]
             )
         ),
@@ -155,6 +156,7 @@ class ClientController extends Controller
         }
 
         $this->repository->delete($id);
+
         return response()->json(['msg' => 'O cliente foi removido com sucesso!'], 200);
     }
 }

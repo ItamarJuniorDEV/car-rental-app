@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateCarsTable extends Migration
 {
-
     public function up()
     {
         Schema::create('cars', function (Blueprint $table) {

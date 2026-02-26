@@ -22,7 +22,7 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
         $record = $this->model->with('line.brand')->find($id);
 
         if ($record === null) {
-            throw new \App\Exceptions\ResourceNotFoundException();
+            throw new \App\Exceptions\ResourceNotFoundException;
         }
 
         return $record;

@@ -19,10 +19,10 @@ class AuthController extends Controller
             content: new OA\JsonContent(
                 required: ['name', 'email', 'password', 'password_confirmation'],
                 properties: [
-                    new OA\Property(property: 'name',                  type: 'string',  example: 'João Silva'),
-                    new OA\Property(property: 'email',                 type: 'string',  format: 'email', example: 'joao@exemplo.com'),
-                    new OA\Property(property: 'password',              type: 'string',  format: 'password', example: 'senha123'),
-                    new OA\Property(property: 'password_confirmation', type: 'string',  format: 'password', example: 'senha123'),
+                    new OA\Property(property: 'name', type: 'string', example: 'João Silva'),
+                    new OA\Property(property: 'email', type: 'string', format: 'email', example: 'joao@exemplo.com'),
+                    new OA\Property(property: 'password', type: 'string', format: 'password', example: 'senha123'),
+                    new OA\Property(property: 'password_confirmation', type: 'string', format: 'password', example: 'senha123'),
                 ]
             )
         ),
@@ -40,14 +40,14 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $data = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|string|email|max:255|unique:users',
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
         $user = User::create([
-            'name'     => $data['name'],
-            'email'    => $data['email'],
+            'name' => $data['name'],
+            'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
 
@@ -65,7 +65,7 @@ class AuthController extends Controller
             content: new OA\JsonContent(
                 required: ['email', 'password'],
                 properties: [
-                    new OA\Property(property: 'email',    type: 'string', format: 'email', example: 'joao@exemplo.com'),
+                    new OA\Property(property: 'email', type: 'string', format: 'email', example: 'joao@exemplo.com'),
                     new OA\Property(property: 'password', type: 'string', format: 'password', example: 'senha123'),
                 ]
             )
@@ -84,13 +84,13 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $data = $request->validate([
-            'email'    => 'required|string|email',
+            'email' => 'required|string|email',
             'password' => 'required|string',
         ]);
 
         $user = User::where('email', $data['email'])->first();
 
-        if (!$user || !Hash::check($data['password'], $user->password)) {
+        if (! $user || ! Hash::check($data['password'], $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['Credenciais inválidas.'],
             ]);

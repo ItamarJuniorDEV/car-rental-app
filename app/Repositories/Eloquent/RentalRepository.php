@@ -22,7 +22,7 @@ class RentalRepository extends BaseRepository implements RentalRepositoryInterfa
         $record = $this->model->with(['client', 'car.line'])->find($id);
 
         if ($record === null) {
-            throw new \App\Exceptions\ResourceNotFoundException();
+            throw new \App\Exceptions\ResourceNotFoundException;
         }
 
         return $record;

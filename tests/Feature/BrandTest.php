@@ -12,12 +12,13 @@ class BrandTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $operador;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->admin    = User::factory()->admin()->create();
+        $this->admin = User::factory()->admin()->create();
         $this->operador = User::factory()->create();
     }
 
@@ -28,13 +29,15 @@ class BrandTest extends TestCase
 
         $response = $this->actingAs($this->operador, 'sanctum')->getJson('/api/brands');
 
-        $response->assertOk()->assertJsonCount(2, 'data');
+        $response->assertOk()
+            ->assertJsonStructure(['data', 'links', 'meta'])
+            ->assertJsonCount(2, 'data');
     }
 
     public function test_admin_pode_criar_marca()
     {
         $response = $this->actingAs($this->admin, 'sanctum')->postJson('/api/brands', [
-            'name'  => 'Volkswagen',
+            'name' => 'Volkswagen',
             'image' => 'vw.png',
         ]);
 
@@ -45,7 +48,7 @@ class BrandTest extends TestCase
     public function test_operador_nao_pode_criar_marca()
     {
         $response = $this->actingAs($this->operador, 'sanctum')->postJson('/api/brands', [
-            'name'  => 'Volkswagen',
+            'name' => 'Volkswagen',
             'image' => 'vw.png',
         ]);
 
@@ -57,7 +60,7 @@ class BrandTest extends TestCase
         Brand::create(['name' => 'Toyota', 'image' => 'toyota.png']);
 
         $response = $this->actingAs($this->admin, 'sanctum')->postJson('/api/brands', [
-            'name'  => 'Toyota',
+            'name' => 'Toyota',
             'image' => 'outra.png',
         ]);
 
@@ -109,7 +112,7 @@ class BrandTest extends TestCase
     public function test_sem_autenticacao_retorna_401()
     {
         $response = $this->postJson('/api/brands', [
-            'name'  => 'Toyota',
+            'name' => 'Toyota',
             'image' => 'toyota.png',
         ]);
 

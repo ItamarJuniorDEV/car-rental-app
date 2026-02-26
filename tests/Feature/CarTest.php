@@ -13,12 +13,13 @@ class CarTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $operador;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->admin    = User::factory()->admin()->create();
+        $this->admin = User::factory()->admin()->create();
         $this->operador = User::factory()->create();
     }
 
@@ -28,7 +29,9 @@ class CarTest extends TestCase
 
         $response = $this->actingAs($this->operador, 'sanctum')->getJson('/api/cars');
 
-        $response->assertOk()->assertJsonCount(3, 'data');
+        $response->assertOk()
+            ->assertJsonStructure(['data', 'links', 'meta'])
+            ->assertJsonCount(3, 'data');
     }
 
     public function test_filtro_por_placa()
@@ -57,10 +60,10 @@ class CarTest extends TestCase
         $line = Line::factory()->create();
 
         $response = $this->actingAs($this->admin, 'sanctum')->postJson('/api/cars', [
-            'line_id'   => $line->id,
-            'plate'     => 'ABC-1D23',
+            'line_id' => $line->id,
+            'plate' => 'ABC-1D23',
             'available' => true,
-            'km'        => 10000,
+            'km' => 10000,
         ]);
 
         $response->assertStatus(201);
@@ -72,10 +75,10 @@ class CarTest extends TestCase
         $line = Line::factory()->create();
 
         $response = $this->actingAs($this->operador, 'sanctum')->postJson('/api/cars', [
-            'line_id'   => $line->id,
-            'plate'     => 'ABC-1D23',
+            'line_id' => $line->id,
+            'plate' => 'ABC-1D23',
             'available' => true,
-            'km'        => 10000,
+            'km' => 10000,
         ]);
 
         $response->assertStatus(403);

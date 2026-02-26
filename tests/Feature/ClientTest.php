@@ -12,12 +12,13 @@ class ClientTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $operador;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->admin    = User::factory()->admin()->create();
+        $this->admin = User::factory()->admin()->create();
         $this->operador = User::factory()->create();
     }
 
@@ -27,7 +28,9 @@ class ClientTest extends TestCase
 
         $response = $this->actingAs($this->operador, 'sanctum')->getJson('/api/clients');
 
-        $response->assertOk()->assertJsonCount(3, 'data');
+        $response->assertOk()
+            ->assertJsonStructure(['data', 'links', 'meta'])
+            ->assertJsonCount(3, 'data');
     }
 
     public function test_filtro_por_nome()
@@ -43,8 +46,8 @@ class ClientTest extends TestCase
     public function test_pode_criar_cliente()
     {
         $response = $this->actingAs($this->operador, 'sanctum')->postJson('/api/clients', [
-            'name'  => 'Carlos Mendes',
-            'cpf'   => '123.456.789-00',
+            'name' => 'Carlos Mendes',
+            'cpf' => '123.456.789-00',
             'email' => 'carlos@exemplo.com',
             'phone' => '(51) 99999-1234',
         ]);
@@ -58,8 +61,8 @@ class ClientTest extends TestCase
         Client::factory()->create(['cpf' => '123.456.789-00']);
 
         $response = $this->actingAs($this->operador, 'sanctum')->postJson('/api/clients', [
-            'name'  => 'Outro Carlos',
-            'cpf'   => '123.456.789-00',
+            'name' => 'Outro Carlos',
+            'cpf' => '123.456.789-00',
             'email' => 'outro@exemplo.com',
             'phone' => '(51) 99999-0000',
         ]);

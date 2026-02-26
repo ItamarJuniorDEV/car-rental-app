@@ -16,34 +16,37 @@ class RentalTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $operador;
+
     private Client $client;
+
     private Car $car;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->admin    = User::factory()->admin()->create();
+        $this->admin = User::factory()->admin()->create();
         $this->operador = User::factory()->create();
 
         $brand = Brand::create(['name' => 'Toyota', 'image' => 'toyota.png']);
 
         $line = Line::create([
-            'brand_id'   => $brand->id,
-            'name'       => 'Corolla',
-            'image'      => 'corolla.png',
+            'brand_id' => $brand->id,
+            'name' => 'Corolla',
+            'image' => 'corolla.png',
             'door_count' => 4,
-            'seats'      => 5,
-            'air_bag'    => true,
-            'abs'        => true,
+            'seats' => 5,
+            'air_bag' => true,
+            'abs' => true,
         ]);
 
         $this->car = Car::create([
-            'line_id'   => $line->id,
-            'plate'     => 'ABC-1D23',
+            'line_id' => $line->id,
+            'plate' => 'ABC-1D23',
             'available' => true,
-            'km'        => 15000,
+            'km' => 15000,
         ]);
 
         $this->client = Client::factory()->create();
@@ -52,12 +55,12 @@ class RentalTest extends TestCase
     private function dadosLocacao(array $override = []): array
     {
         return array_merge([
-            'client_id'                => $this->client->id,
-            'car_id'                   => $this->car->id,
-            'period_start_date'        => '2026-03-01 08:00:00',
+            'client_id' => $this->client->id,
+            'car_id' => $this->car->id,
+            'period_start_date' => '2026-03-01 08:00:00',
             'period_expected_end_date' => '2026-03-05 08:00:00',
-            'daily_rate'               => 200.00,
-            'initial_km'               => 15000,
+            'daily_rate' => 200.00,
+            'initial_km' => 15000,
         ], $override);
     }
 
@@ -87,7 +90,7 @@ class RentalTest extends TestCase
         $response = $this->actingAs($this->operador, 'sanctum')
             ->putJson("/api/rentals/{$rental->id}", [
                 'period_actual_end_date' => '2026-03-05 08:00:00',
-                'final_km'               => 14000,
+                'final_km' => 14000,
             ]);
 
         $response->assertStatus(422);
@@ -100,7 +103,7 @@ class RentalTest extends TestCase
         $response = $this->actingAs($this->operador, 'sanctum')
             ->putJson("/api/rentals/{$rental->id}", [
                 'period_actual_end_date' => '2026-02-28 08:00:00',
-                'final_km'               => 15500,
+                'final_km' => 15500,
             ]);
 
         $response->assertStatus(422);
@@ -113,7 +116,7 @@ class RentalTest extends TestCase
         $this->actingAs($this->operador, 'sanctum')
             ->putJson("/api/rentals/{$rental->id}", [
                 'period_actual_end_date' => '2026-03-05 08:00:00',
-                'final_km'               => 15800,
+                'final_km' => 15800,
             ])
             ->assertOk();
 
@@ -128,7 +131,7 @@ class RentalTest extends TestCase
         $response = $this->actingAs($this->operador, 'sanctum')
             ->putJson("/api/rentals/{$rental->id}", [
                 'period_actual_end_date' => '2026-03-07 08:00:00',
-                'final_km'               => 15800,
+                'final_km' => 15800,
             ]);
 
         $response->assertOk();
