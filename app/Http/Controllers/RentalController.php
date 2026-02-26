@@ -12,6 +12,7 @@ use App\Repositories\Contracts\RentalRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use OpenApi\Attributes as OA;
 
 class RentalController extends Controller
 {
@@ -26,6 +27,16 @@ class RentalController extends Controller
         $this->carRepository = $carRepository;
     }
 
+    #[OA\Get(
+        path: '/api/rentals',
+        summary: 'Listar locações',
+        tags: ['Locações'],
+        security: [['bearerAuth' => []]],
+        responses: [
+            new OA\Response(response: 200, description: 'Lista de locações'),
+            new OA\Response(response: 401, description: 'Não autenticado'),
+        ]
+    )]
     public function index()
     {
         $this->authorize('viewAny', Rental::class);
@@ -33,6 +44,31 @@ class RentalController extends Controller
         return RentalResource::collection($this->repository->paginate());
     }
 
+    #[OA\Post(
+        path: '/api/rentals',
+        summary: 'Registrar locação',
+        tags: ['Locações'],
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['client_id', 'car_id', 'period_start_date', 'period_expected_end_date', 'daily_rate', 'initial_km'],
+                properties: [
+                    new OA\Property(property: 'client_id',                 type: 'integer', example: 1),
+                    new OA\Property(property: 'car_id',                    type: 'integer', example: 1),
+                    new OA\Property(property: 'period_start_date',         type: 'string',  format: 'date', example: '2026-03-01'),
+                    new OA\Property(property: 'period_expected_end_date',  type: 'string',  format: 'date', example: '2026-03-07'),
+                    new OA\Property(property: 'daily_rate',                type: 'number',  example: 150.00),
+                    new OA\Property(property: 'initial_km',                type: 'integer', example: 15000),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 201, description: 'Locação criada'),
+            new OA\Response(response: 401, description: 'Não autenticado'),
+            new OA\Response(response: 422, description: 'Veículo indisponível ou dados inválidos'),
+        ]
+    )]
     public function store(StoreRentalRequest $request)
     {
         $this->authorize('create', Rental::class);
@@ -52,6 +88,20 @@ class RentalController extends Controller
         return (new RentalResource($rental))->response()->setStatusCode(201);
     }
 
+    #[OA\Get(
+        path: '/api/rentals/{id}',
+        summary: 'Exibir locação',
+        tags: ['Locações'],
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Locação encontrada'),
+            new OA\Response(response: 401, description: 'Não autenticado'),
+            new OA\Response(response: 404, description: 'Não encontrada'),
+        ]
+    )]
     public function show($id)
     {
         $rental = $this->repository->find($id);
@@ -60,6 +110,29 @@ class RentalController extends Controller
         return new RentalResource($rental);
     }
 
+    #[OA\Put(
+        path: '/api/rentals/{id}',
+        summary: 'Registrar devolução',
+        tags: ['Locações'],
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        requestBody: new OA\RequestBody(
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'period_actual_end_date', type: 'string',  format: 'date', example: '2026-03-08'),
+                    new OA\Property(property: 'final_km',              type: 'integer', example: 15700),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Devolução registrada, multa calculada se houver atraso'),
+            new OA\Response(response: 401, description: 'Não autenticado'),
+            new OA\Response(response: 404, description: 'Não encontrada'),
+            new OA\Response(response: 422, description: 'Dados inválidos'),
+        ]
+    )]
     public function update(UpdateRentalRequest $request, $id)
     {
         $rental = $this->repository->find($id);
@@ -92,6 +165,20 @@ class RentalController extends Controller
         return new RentalResource($rental->fresh());
     }
 
+    #[OA\Delete(
+        path: '/api/rentals/{id}',
+        summary: 'Cancelar locação',
+        tags: ['Locações'],
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Locação cancelada, veículo liberado'),
+            new OA\Response(response: 401, description: 'Não autenticado'),
+            new OA\Response(response: 404, description: 'Não encontrada'),
+        ]
+    )]
     public function destroy($id)
     {
         $rental = $this->repository->find($id);
