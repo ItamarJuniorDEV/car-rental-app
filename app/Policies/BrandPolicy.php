@@ -4,33 +4,30 @@ namespace App\Policies;
 
 use App\Models\Brand;
 use App\Models\User;
-use Illuminate\Auth\Access\HandlesAuthorization;
 
 class BrandPolicy
 {
-    use HandlesAuthorization;
-
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
         return true;
     }
 
-    public function view(User $user, Brand $brand)
+    public function view(User $user, Brand $brand): bool
     {
         return true;
     }
 
-    public function create(User $user)
+    public function create(User $user): bool
     {
-        return true;
+        return $user->isAdmin();
     }
 
-    public function update(User $user, Brand $brand)
+    public function update(User $user, Brand $brand): bool
     {
-        return true;
+        return $user->isAdmin();
     }
 
-    public function delete(User $user, Brand $brand)
+    public function delete(User $user, Brand $brand): bool
     {
         return $user->isAdmin();
     }

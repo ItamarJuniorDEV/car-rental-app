@@ -4,33 +4,30 @@ namespace App\Policies;
 
 use App\Models\Car;
 use App\Models\User;
-use Illuminate\Auth\Access\HandlesAuthorization;
 
 class CarPolicy
 {
-    use HandlesAuthorization;
-
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
         return true;
     }
 
-    public function view(User $user, Car $car)
+    public function view(User $user, Car $car): bool
     {
         return true;
     }
 
-    public function create(User $user)
+    public function create(User $user): bool
     {
-        return true;
+        return $user->isAdmin();
     }
 
-    public function update(User $user, Car $car)
+    public function update(User $user, Car $car): bool
     {
-        return true;
+        return $user->isAdmin();
     }
 
-    public function delete(User $user, Car $car)
+    public function delete(User $user, Car $car): bool
     {
         return $user->isAdmin();
     }

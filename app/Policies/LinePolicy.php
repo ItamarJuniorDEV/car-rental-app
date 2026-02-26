@@ -4,33 +4,30 @@ namespace App\Policies;
 
 use App\Models\Line;
 use App\Models\User;
-use Illuminate\Auth\Access\HandlesAuthorization;
 
 class LinePolicy
 {
-    use HandlesAuthorization;
-
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
         return true;
     }
 
-    public function view(User $user, Line $line)
+    public function view(User $user, Line $line): bool
     {
         return true;
     }
 
-    public function create(User $user)
+    public function create(User $user): bool
     {
-        return true;
+        return $user->isAdmin();
     }
 
-    public function update(User $user, Line $line)
+    public function update(User $user, Line $line): bool
     {
-        return true;
+        return $user->isAdmin();
     }
 
-    public function delete(User $user, Line $line)
+    public function delete(User $user, Line $line): bool
     {
         return $user->isAdmin();
     }

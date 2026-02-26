@@ -42,7 +42,7 @@ class CarController extends Controller
             return CarResource::collection($this->repository->searchByPlate($request->plate));
         }
 
-        if ($request->has('available')) {
+        if ($request->has('available') && $request->boolean('available')) {
             return CarResource::collection($this->repository->findAvailable());
         }
 
