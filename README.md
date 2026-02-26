@@ -8,10 +8,11 @@ A ideia surgiu de uma conversa com o dono de uma locadora pequena que controlava
 
 ## Tecnologias
 
-- PHP 8.0 / Laravel 8
+- PHP 8.4 / Laravel 12
 - MySQL 8
-- Autenticação por token (driver nativo do Laravel)
+- Laravel Sanctum para autenticação via Bearer token
 - PHPUnit com SQLite em memória para os testes
+- GitHub Actions para CI (roda os testes a cada push)
 
 ---
 
@@ -38,7 +39,7 @@ Os controllers dependem das interfaces, não das implementações. O binding fic
 
 ## Instalação
 
-**Pré-requisitos:** PHP 8.0+, Composer, MySQL 8
+**Pré-requisitos:** PHP 8.4+, Composer, MySQL 8
 
 ```bash
 git clone <repositório>
@@ -73,17 +74,28 @@ php artisan serve
 
 API disponível em `http://localhost:8000/api`
 
+Documentação interativa (Swagger UI): `http://localhost:8000/docs`
+
 ---
 
-## Autenticação
+## Autenticação e permissões
 
-A API usa o driver de token do Laravel. Todas as rotas — exceto `/register` e `/login` — exigem o header:
+A API usa Laravel Sanctum. Todas as rotas — exceto `/register` e `/login` — exigem o header:
 
 ```
 Authorization: Bearer {token}
 ```
 
-O token é gerado no registro e regenerado a cada login. Ao fazer logout, o token é invalidado no banco.
+O token é gerado no registro e regenerado a cada login. Ao fazer logout, todos os tokens do usuário são revogados.
+
+Existem dois papéis:
+
+| Papel | Permissões |
+|-------|------------|
+| `admin` | Acesso total, incluindo exclusão de marcas, linhas e veículos |
+| `operador` | Leitura e operações (criar, atualizar, locar, devolver), sem exclusão de marcas/linhas/veículos |
+
+O papel padrão ao registrar é `operador`.
 
 ### Registrar
 
@@ -328,7 +340,8 @@ Se a devolução for após a data prevista, o campo `late_fee` é calculado auto
 
 ```
 users
-  id, name, email, password, api_token, timestamps
+  id, name, email, password, role (admin|operador), timestamps
+  personal_access_tokens  (Sanctum)
 
 brands
   id, name (único), image, deleted_at, timestamps
@@ -364,7 +377,7 @@ Ou diretamente com PHPUnit:
 ./vendor/bin/phpunit
 ```
 
-Cobre autenticação, CRUD de marcas e o ciclo completo de locação (criar, devolver, multa por atraso, validações de km e data, proteção de delete com locação ativa).
+Cobre autenticação, CRUD de marcas (incluindo restrição de exclusão por papel), e o ciclo completo de locação (criar, devolver, multa por atraso, validações de km e data, proteção de delete com locação ativa).
 
 ---
 
