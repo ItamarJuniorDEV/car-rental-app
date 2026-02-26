@@ -1,62 +1,385 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# Locadora API
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API REST para gerenciamento de locação de veículos. Desenvolvida como projeto de portfólio para consolidar conceitos de arquitetura em camadas com Laravel — repository pattern, autenticação por token, políticas de acesso e testes automatizados.
 
-## About Laravel
+A ideia surgiu de uma conversa com o dono de uma locadora pequena que controlava tudo em planilhas do Excel: qual carro estava disponível, quem tinha alugado, quilometragem de saída e retorno. O sistema nunca chegou a ser implantado, mas serviu de base pra eu estruturar uma API de verdade com as preocupações que aparecem em projetos reais — race condition no momento do aluguel, soft delete pra não perder histórico, multa por atraso na devolução.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tecnologias
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP 8.0 / Laravel 8
+- MySQL 8
+- Autenticação por token (driver nativo do Laravel)
+- PHPUnit com SQLite em memória para os testes
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Arquitetura
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```
+app/
+├── Http/
+│   ├── Controllers/     # Recebem a requisição, delegam para os repositórios
+│   ├── Requests/        # Validação de entrada
+│   ├── Resources/       # Formatação da resposta JSON
+│   └── Middleware/
+├── Models/              # Eloquent com SoftDeletes
+├── Repositories/
+│   ├── Contracts/       # Interfaces
+│   └── Eloquent/        # Implementações
+├── Policies/            # Autorização por recurso
+└── Exceptions/          # Erros de negócio mapeados para HTTP
+```
 
-## Laravel Sponsors
+Os controllers dependem das interfaces, não das implementações. O binding fica no `AppServiceProvider`. Isso facilita trocar a implementação (ex: cache) sem tocar no controller.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+---
 
-### Premium Partners
+## Instalação
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/)**
-- **[OP.GG](https://op.gg)**
+**Pré-requisitos:** PHP 8.0+, Composer, MySQL 8
 
-## Contributing
+```bash
+git clone <repositório>
+cd car-rental-app
+composer install
+cp .env.example .env
+php artisan key:generate
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Configure o banco no `.env`:
 
-## Code of Conduct
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=locadora
+DB_USERNAME=root
+DB_PASSWORD=sua_senha
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Execute as migrations:
 
-## Security Vulnerabilities
+```bash
+php artisan migrate
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Suba o servidor:
 
-## License
+```bash
+php artisan serve
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+API disponível em `http://localhost:8000/api`
+
+---
+
+## Autenticação
+
+A API usa o driver de token do Laravel. Todas as rotas — exceto `/register` e `/login` — exigem o header:
+
+```
+Authorization: Bearer {token}
+```
+
+O token é gerado no registro e regenerado a cada login. Ao fazer logout, o token é invalidado no banco.
+
+### Registrar
+
+```http
+POST /api/register
+Content-Type: application/json
+
+{
+    "name": "Carlos Mendes",
+    "email": "carlos@locadora.com",
+    "password": "minhasenha",
+    "password_confirmation": "minhasenha"
+}
+```
+
+```json
+{
+    "token": "abc123..."
+}
+```
+
+### Login
+
+```http
+POST /api/login
+Content-Type: application/json
+
+{
+    "email": "carlos@locadora.com",
+    "password": "minhasenha"
+}
+```
+
+```json
+{
+    "token": "xyz456..."
+}
+```
+
+### Logout
+
+```http
+POST /api/logout
+Authorization: Bearer xyz456...
+```
+
+---
+
+## Endpoints
+
+### Marcas
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/api/brands` | Lista marcas (paginado, 15 por página) |
+| GET | `/api/brands?name=toy` | Busca por nome |
+| GET | `/api/brands/{id}` | Detalhe da marca |
+| POST | `/api/brands` | Criar marca |
+| PUT | `/api/brands/{id}` | Atualizar marca |
+| DELETE | `/api/brands/{id}` | Remover marca (soft delete) |
+
+**Criar marca:**
+```http
+POST /api/brands
+Authorization: Bearer {token}
+
+{
+    "name": "Toyota",
+    "image": "toyota.png"
+}
+```
+
+---
+
+### Linhas (modelos)
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/api/lines` | Lista linhas |
+| GET | `/api/lines?brand_id=1` | Filtra por marca |
+| GET | `/api/lines/{id}` | Detalhe |
+| POST | `/api/lines` | Criar linha |
+| PUT | `/api/lines/{id}` | Atualizar |
+| DELETE | `/api/lines/{id}` | Remover |
+
+**Criar linha:**
+```http
+POST /api/lines
+Authorization: Bearer {token}
+
+{
+    "brand_id": 1,
+    "name": "Corolla",
+    "image": "corolla.png",
+    "door_count": 4,
+    "seats": 5,
+    "air_bag": true,
+    "abs": true
+}
+```
+
+---
+
+### Veículos
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/api/cars` | Lista veículos |
+| GET | `/api/cars?available=1` | Somente disponíveis |
+| GET | `/api/cars?plate=abc` | Busca por placa |
+| GET | `/api/cars/{id}` | Detalhe |
+| POST | `/api/cars` | Cadastrar veículo |
+| PUT | `/api/cars/{id}` | Atualizar |
+| DELETE | `/api/cars/{id}` | Remover (bloqueia se tiver locação ativa) |
+
+**Cadastrar veículo:**
+```http
+POST /api/cars
+Authorization: Bearer {token}
+
+{
+    "line_id": 1,
+    "plate": "ABC-1D23",
+    "available": true,
+    "km": 15000
+}
+```
+
+---
+
+### Clientes
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/api/clients` | Lista clientes |
+| GET | `/api/clients?name=maria` | Busca por nome |
+| GET | `/api/clients/{id}` | Detalhe |
+| POST | `/api/clients` | Cadastrar cliente |
+| PUT | `/api/clients/{id}` | Atualizar |
+| DELETE | `/api/clients/{id}` | Remover (bloqueia se tiver locação ativa) |
+
+**Cadastrar cliente:**
+```http
+POST /api/clients
+Authorization: Bearer {token}
+
+{
+    "name": "Maria Oliveira",
+    "cpf": "123.456.789-00",
+    "email": "maria@email.com",
+    "phone": "(51) 99999-1234"
+}
+```
+
+---
+
+### Locações
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/api/rentals` | Lista locações |
+| GET | `/api/rentals/{id}` | Detalhe |
+| POST | `/api/rentals` | Criar locação |
+| PUT | `/api/rentals/{id}` | Atualizar / registrar devolução |
+| DELETE | `/api/rentals/{id}` | Remover |
+
+**Criar locação:**
+```http
+POST /api/rentals
+Authorization: Bearer {token}
+
+{
+    "client_id": 1,
+    "car_id": 1,
+    "period_start_date": "2026-03-01 08:00:00",
+    "period_expected_end_date": "2026-03-05 08:00:00",
+    "daily_rate": 200.00,
+    "initial_km": 15000
+}
+```
+
+A criação verifica disponibilidade do carro e atualiza `available = false` dentro de uma transação para evitar race condition.
+
+**Registrar devolução:**
+```http
+PUT /api/rentals/{id}
+Authorization: Bearer {token}
+
+{
+    "period_actual_end_date": "2026-03-07 08:00:00",
+    "final_km": 15800
+}
+```
+
+Se a devolução for após a data prevista, o campo `late_fee` é calculado automaticamente (50% da diária por dia de atraso). O carro volta para `available = true` e o km é atualizado.
+
+**Exemplo de resposta:**
+```json
+{
+    "data": {
+        "id": 1,
+        "period_start_date": "2026-03-01 08:00:00",
+        "period_expected_end_date": "2026-03-05 08:00:00",
+        "period_actual_end_date": "2026-03-07 08:00:00",
+        "daily_rate": 200,
+        "initial_km": 15000,
+        "final_km": 15800,
+        "late_fee": 200,
+        "total": 1000,
+        "client": {
+            "id": 1,
+            "name": "Maria Oliveira",
+            "cpf": "123.456.789-00",
+            "email": "maria@email.com",
+            "phone": "(51) 99999-1234"
+        },
+        "car": {
+            "id": 1,
+            "plate": "ABC-1D23",
+            "available": true,
+            "km": 15800,
+            "line": { ... }
+        }
+    }
+}
+```
+
+---
+
+## Regras de negócio
+
+- Carro indisponível → 422 ao tentar criar locação
+- `final_km` menor que `initial_km` → 422
+- Data de devolução anterior à data de início → 422
+- Deletar carro ou cliente com locação em aberto → 422
+- Devolução com atraso → `late_fee` = dias de atraso × diária × 0.5
+- Todos os registros usam soft delete — nada é removido fisicamente do banco
+
+---
+
+## Banco de dados
+
+```
+users
+  id, name, email, password, api_token, timestamps
+
+brands
+  id, name (único), image, deleted_at, timestamps
+
+lines
+  id, brand_id, name, image, door_count, seats, air_bag, abs, deleted_at, timestamps
+
+cars
+  id, line_id, plate (único), available, km, deleted_at, timestamps
+
+clients
+  id, name, cpf (único), email (único), phone, deleted_at, timestamps
+
+rentals
+  id, client_id, car_id, period_start_date, period_expected_end_date,
+  period_actual_end_date (nullable), daily_rate, initial_km,
+  final_km (nullable), deleted_at, timestamps
+```
+
+---
+
+## Testes
+
+Os testes rodam em SQLite em memória — não precisam de banco configurado.
+
+```bash
+php artisan test
+```
+
+Ou diretamente com PHPUnit:
+
+```bash
+./vendor/bin/phpunit
+```
+
+Cobre autenticação, CRUD de marcas e o ciclo completo de locação (criar, devolver, multa por atraso, validações de km e data, proteção de delete com locação ativa).
+
+---
+
+## Erros comuns
+
+**401 em todas as rotas:** token não enviado ou inválido. Faça login novamente.
+
+**422 ao criar cliente:** CPF deve estar no formato `000.000.000-00` e email precisa ser único.
+
+**422 ao criar locação:** verifique se o `car_id` existe e se `available` é `true`.
+
+**Migration falhou:** rode `php artisan migrate:fresh` para recriar tudo do zero (apaga os dados).
+
+---
+
+## Licença
+
+MIT

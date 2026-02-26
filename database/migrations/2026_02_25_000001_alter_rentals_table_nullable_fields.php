@@ -7,13 +7,17 @@ class AlterRentalsTableNullableFields extends Migration
 {
     public function up()
     {
-        DB::statement('ALTER TABLE rentals ALTER COLUMN period_actual_end_date DROP NOT NULL');
-        DB::statement('ALTER TABLE rentals ALTER COLUMN final_km DROP NOT NULL');
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE rentals MODIFY COLUMN period_actual_end_date DATETIME NULL');
+            DB::statement('ALTER TABLE rentals MODIFY COLUMN final_km INT NULL');
+        }
     }
 
     public function down()
     {
-        DB::statement('ALTER TABLE rentals ALTER COLUMN period_actual_end_date SET NOT NULL');
-        DB::statement('ALTER TABLE rentals ALTER COLUMN final_km SET NOT NULL');
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE rentals MODIFY COLUMN period_actual_end_date DATETIME NOT NULL');
+            DB::statement('ALTER TABLE rentals MODIFY COLUMN final_km INT NOT NULL');
+        }
     }
 }
