@@ -6,6 +6,7 @@ use App\Exceptions\CarNotAvailableException;
 use App\Http\Requests\StoreRentalRequest;
 use App\Http\Requests\UpdateRentalRequest;
 use App\Http\Resources\RentalResource;
+use App\Models\Car;
 use App\Models\Rental;
 use App\Repositories\Contracts\CarRepositoryInterface;
 use App\Repositories\Contracts\RentalRepositoryInterface;
@@ -73,13 +74,13 @@ class RentalController extends Controller
     {
         $this->authorize('create', Rental::class);
 
-        $car = $this->carRepository->find($request->car_id);
+        $rental = DB::transaction(function () use ($request) {
+            $car = Car::lockForUpdate()->findOrFail($request->car_id);
 
-        if (!$car->available) {
-            throw new CarNotAvailableException();
-        }
+            if (!$car->available) {
+                throw new CarNotAvailableException();
+            }
 
-        $rental = DB::transaction(function () use ($request, $car) {
             $rental = $this->repository->create($request->validated());
             $this->carRepository->update($car->id, ['available' => false]);
             return $rental;
