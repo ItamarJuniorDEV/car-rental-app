@@ -8,7 +8,9 @@ use App\Http\Requests\UpdateCarRequest;
 use App\Http\Resources\CarResource;
 use App\Models\Car;
 use App\Repositories\Contracts\CarRepositoryInterface;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Attributes as OA;
 
 class CarController extends Controller
@@ -34,12 +36,12 @@ class CarController extends Controller
             new OA\Response(response: 401, description: 'Não autenticado'),
         ]
     )]
-    public function index(Request $request)
+    public function index(Request $request): AnonymousResourceCollection
     {
         $this->authorize('viewAny', Car::class);
 
         if ($request->has('plate')) {
-            return CarResource::collection($this->repository->searchByPlate($request->plate));
+            return CarResource::collection($this->repository->searchByPlate($request->string('plate')->value()));
         }
 
         if ($request->has('available') && $request->boolean('available')) {
@@ -72,7 +74,7 @@ class CarController extends Controller
             new OA\Response(response: 422, description: 'Dados inválidos'),
         ]
     )]
-    public function store(StoreCarRequest $request)
+    public function store(StoreCarRequest $request): JsonResponse
     {
         $this->authorize('create', Car::class);
 
@@ -95,7 +97,7 @@ class CarController extends Controller
             new OA\Response(response: 404, description: 'Não encontrado'),
         ]
     )]
-    public function show($id)
+    public function show(int $id): CarResource
     {
         $car = $this->repository->find($id);
         $this->authorize('view', $car);
@@ -128,7 +130,7 @@ class CarController extends Controller
             new OA\Response(response: 422, description: 'Dados inválidos'),
         ]
     )]
-    public function update(UpdateCarRequest $request, $id)
+    public function update(UpdateCarRequest $request, int $id): CarResource
     {
         $car = $this->repository->find($id);
         $this->authorize('update', $car);
@@ -151,7 +153,7 @@ class CarController extends Controller
             new OA\Response(response: 422, description: 'Locação ativa — remoção bloqueada'),
         ]
     )]
-    public function destroy($id)
+    public function destroy(int $id): JsonResponse
     {
         $car = $this->repository->find($id);
         $this->authorize('delete', $car);

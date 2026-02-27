@@ -7,12 +7,12 @@ use Illuminate\Validation\Rule;
 
 class UpdateCarRequest extends FormRequest
 {
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'line_id' => 'sometimes|integer|exists:lines,id',

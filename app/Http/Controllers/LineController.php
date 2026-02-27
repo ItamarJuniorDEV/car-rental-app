@@ -7,7 +7,9 @@ use App\Http\Requests\UpdateLineRequest;
 use App\Http\Resources\LineResource;
 use App\Models\Line;
 use App\Repositories\Contracts\LineRepositoryInterface;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Attributes as OA;
 
 class LineController extends Controller
@@ -32,12 +34,12 @@ class LineController extends Controller
             new OA\Response(response: 401, description: 'Não autenticado'),
         ]
     )]
-    public function index(Request $request)
+    public function index(Request $request): AnonymousResourceCollection
     {
         $this->authorize('viewAny', Line::class);
 
         if ($request->has('brand_id')) {
-            return LineResource::collection($this->repository->findByBrand((int) $request->brand_id));
+            return LineResource::collection($this->repository->findByBrand($request->integer('brand_id')));
         }
 
         return LineResource::collection($this->repository->paginate());
@@ -69,7 +71,7 @@ class LineController extends Controller
             new OA\Response(response: 422, description: 'Dados inválidos'),
         ]
     )]
-    public function store(StoreLineRequest $request)
+    public function store(StoreLineRequest $request): JsonResponse
     {
         $this->authorize('create', Line::class);
 
@@ -92,7 +94,7 @@ class LineController extends Controller
             new OA\Response(response: 404, description: 'Não encontrada'),
         ]
     )]
-    public function show($id)
+    public function show(int $id): LineResource
     {
         $line = $this->repository->find($id);
         $this->authorize('view', $line);
@@ -128,7 +130,7 @@ class LineController extends Controller
             new OA\Response(response: 422, description: 'Dados inválidos'),
         ]
     )]
-    public function update(UpdateLineRequest $request, $id)
+    public function update(UpdateLineRequest $request, int $id): LineResource
     {
         $line = $this->repository->find($id);
         $this->authorize('update', $line);
@@ -150,7 +152,7 @@ class LineController extends Controller
             new OA\Response(response: 404, description: 'Não encontrada'),
         ]
     )]
-    public function destroy($id)
+    public function destroy(int $id): JsonResponse
     {
         $line = $this->repository->find($id);
         $this->authorize('delete', $line);

@@ -8,7 +8,9 @@ use App\Http\Requests\UpdateClientRequest;
 use App\Http\Resources\ClientResource;
 use App\Models\Client;
 use App\Repositories\Contracts\ClientRepositoryInterface;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Attributes as OA;
 
 class ClientController extends Controller
@@ -33,12 +35,12 @@ class ClientController extends Controller
             new OA\Response(response: 401, description: 'Não autenticado'),
         ]
     )]
-    public function index(Request $request)
+    public function index(Request $request): AnonymousResourceCollection
     {
         $this->authorize('viewAny', Client::class);
 
         if ($request->has('name')) {
-            return ClientResource::collection($this->repository->search($request->name));
+            return ClientResource::collection($this->repository->search($request->string('name')->value()));
         }
 
         return ClientResource::collection($this->repository->paginate());
@@ -67,7 +69,7 @@ class ClientController extends Controller
             new OA\Response(response: 422, description: 'Dados inválidos'),
         ]
     )]
-    public function store(StoreClientRequest $request)
+    public function store(StoreClientRequest $request): JsonResponse
     {
         $this->authorize('create', Client::class);
 
@@ -90,7 +92,7 @@ class ClientController extends Controller
             new OA\Response(response: 404, description: 'Não encontrado'),
         ]
     )]
-    public function show($id)
+    public function show(int $id): ClientResource
     {
         $client = $this->repository->find($id);
         $this->authorize('view', $client);
@@ -123,7 +125,7 @@ class ClientController extends Controller
             new OA\Response(response: 422, description: 'Dados inválidos'),
         ]
     )]
-    public function update(UpdateClientRequest $request, $id)
+    public function update(UpdateClientRequest $request, int $id): ClientResource
     {
         $client = $this->repository->find($id);
         $this->authorize('update', $client);
@@ -146,7 +148,7 @@ class ClientController extends Controller
             new OA\Response(response: 422, description: 'Locação ativa — remoção bloqueada'),
         ]
     )]
-    public function destroy($id)
+    public function destroy(int $id): JsonResponse
     {
         $client = $this->repository->find($id);
         $this->authorize('delete', $client);

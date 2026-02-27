@@ -7,7 +7,9 @@ use App\Http\Requests\UpdateBrandRequest;
 use App\Http\Resources\BrandResource;
 use App\Models\Brand;
 use App\Repositories\Contracts\BrandRepositoryInterface;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Attributes as OA;
 
 class BrandController extends Controller
@@ -32,12 +34,12 @@ class BrandController extends Controller
             new OA\Response(response: 401, description: 'Não autenticado'),
         ]
     )]
-    public function index(Request $request)
+    public function index(Request $request): AnonymousResourceCollection
     {
         $this->authorize('viewAny', Brand::class);
 
         if ($request->has('name')) {
-            return BrandResource::collection($this->repository->search($request->name));
+            return BrandResource::collection($this->repository->search($request->string('name')->value()));
         }
 
         return BrandResource::collection($this->repository->paginate());
@@ -64,7 +66,7 @@ class BrandController extends Controller
             new OA\Response(response: 422, description: 'Dados inválidos'),
         ]
     )]
-    public function store(StoreBrandRequest $request)
+    public function store(StoreBrandRequest $request): JsonResponse
     {
         $this->authorize('create', Brand::class);
 
@@ -87,7 +89,7 @@ class BrandController extends Controller
             new OA\Response(response: 404, description: 'Não encontrada'),
         ]
     )]
-    public function show($id)
+    public function show(int $id): BrandResource
     {
         $brand = $this->repository->find($id);
         $this->authorize('view', $brand);
@@ -118,7 +120,7 @@ class BrandController extends Controller
             new OA\Response(response: 422, description: 'Dados inválidos'),
         ]
     )]
-    public function update(UpdateBrandRequest $request, $id)
+    public function update(UpdateBrandRequest $request, int $id): BrandResource
     {
         $brand = $this->repository->find($id);
         $this->authorize('update', $brand);
@@ -140,7 +142,7 @@ class BrandController extends Controller
             new OA\Response(response: 404, description: 'Não encontrada'),
         ]
     )]
-    public function destroy($id)
+    public function destroy(int $id): JsonResponse
     {
         $brand = $this->repository->find($id);
         $this->authorize('delete', $brand);

@@ -3,13 +3,14 @@
 namespace App\Repositories\Eloquent;
 
 use App\Exceptions\ResourceNotFoundException;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Model;
 
 abstract class BaseRepository
 {
     protected Model $model;
 
-    public function paginate(int $perPage = 15)
+    public function paginate(int $perPage = 15): LengthAwarePaginator
     {
         return $this->model->paginate($perPage);
     }
@@ -34,8 +35,9 @@ abstract class BaseRepository
     {
         $record = $this->find($id);
         $record->update($data);
+        $record->refresh();
 
-        return $record->fresh();
+        return $record;
     }
 
     public function delete(int $id): void

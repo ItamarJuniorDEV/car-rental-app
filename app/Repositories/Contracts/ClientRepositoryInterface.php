@@ -2,17 +2,20 @@
 
 namespace App\Repositories\Contracts;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Model;
+
 interface ClientRepositoryInterface
 {
-    public function paginate(int $perPage = 15);
+    public function paginate(int $perPage = 15): LengthAwarePaginator;
 
-    public function find(int $id);
+    public function find(int $id): Model;
 
-    public function search(string $name);
+    public function search(string $name): LengthAwarePaginator;
 
-    public function create(array $data);
+    public function create(array $data): Model;
 
-    public function update(int $id, array $data);
+    public function update(int $id, array $data): Model;
 
     public function delete(int $id): void;
 }

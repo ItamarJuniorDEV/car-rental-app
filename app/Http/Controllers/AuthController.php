@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -37,7 +38,7 @@ class AuthController extends Controller
             new OA\Response(response: 422, description: 'Dados inválidos'),
         ]
     )]
-    public function register(Request $request)
+    public function register(Request $request): JsonResponse
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
@@ -81,7 +82,7 @@ class AuthController extends Controller
             new OA\Response(response: 422, description: 'Credenciais inválidas'),
         ]
     )]
-    public function login(Request $request)
+    public function login(Request $request): JsonResponse
     {
         $data = $request->validate([
             'email' => 'required|string|email',
@@ -118,9 +119,9 @@ class AuthController extends Controller
             new OA\Response(response: 401, description: 'Não autenticado'),
         ]
     )]
-    public function logout(Request $request)
+    public function logout(Request $request): JsonResponse
     {
-        $request->user()->tokens()->delete();
+        $request->user()?->tokens()->delete();
 
         return response()->json(['msg' => 'Logout realizado com sucesso.']);
     }

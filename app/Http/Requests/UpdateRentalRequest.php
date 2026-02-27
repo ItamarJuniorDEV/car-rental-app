@@ -21,16 +21,16 @@ class UpdateRentalRequest extends FormRequest
         ];
     }
 
-    public function withValidator($validator): void
+    public function withValidator(\Illuminate\Validation\Validator $validator): void
     {
-        $validator->after(function ($validator) {
-            $rental = Rental::find($this->route('rental'));
+        $validator->after(function (\Illuminate\Validation\Validator $validator) {
+            $rental = Rental::query()->find(intval($this->route('rental')));
 
-            if (! $rental) {
+            if (! ($rental instanceof Rental)) {
                 return;
             }
 
-            if ($this->has('final_km') && (int) $this->final_km < $rental->initial_km) {
+            if ($this->has('final_km') && $this->integer('final_km') < $rental->initial_km) {
                 $validator->errors()->add(
                     'final_km',
                     'A quilometragem final não pode ser inferior à inicial.'
@@ -38,7 +38,7 @@ class UpdateRentalRequest extends FormRequest
             }
 
             if ($this->has('period_actual_end_date')) {
-                $actualEnd = Carbon::parse($this->period_actual_end_date);
+                $actualEnd = Carbon::parse($this->string('period_actual_end_date')->value());
 
                 if ($actualEnd->lt($rental->period_start_date)) {
                     $validator->errors()->add(

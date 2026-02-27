@@ -10,6 +10,8 @@ use App\Models\Car;
 use App\Models\Rental;
 use App\Repositories\Contracts\CarRepositoryInterface;
 use App\Repositories\Contracts\RentalRepositoryInterface;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 use OpenApi\Attributes as OA;
 
@@ -37,7 +39,7 @@ class RentalController extends Controller
             new OA\Response(response: 401, description: 'Não autenticado'),
         ]
     )]
-    public function index()
+    public function index(): AnonymousResourceCollection
     {
         $this->authorize('viewAny', Rental::class);
 
@@ -69,12 +71,12 @@ class RentalController extends Controller
             new OA\Response(response: 422, description: 'Veículo indisponível ou dados inválidos'),
         ]
     )]
-    public function store(StoreRentalRequest $request)
+    public function store(StoreRentalRequest $request): JsonResponse
     {
         $this->authorize('create', Rental::class);
 
         $rental = DB::transaction(function () use ($request) {
-            $car = Car::lockForUpdate()->findOrFail($request->car_id);
+            $car = Car::query()->lockForUpdate()->where('id', $request->integer('car_id'))->firstOrFail();
 
             if (! $car->available) {
                 throw new CarNotAvailableException;
@@ -103,7 +105,7 @@ class RentalController extends Controller
             new OA\Response(response: 404, description: 'Não encontrada'),
         ]
     )]
-    public function show($id)
+    public function show(int $id): RentalResource
     {
         $rental = $this->repository->find($id);
         $this->authorize('view', $rental);
@@ -134,7 +136,7 @@ class RentalController extends Controller
             new OA\Response(response: 422, description: 'Dados inválidos'),
         ]
     )]
-    public function update(UpdateRentalRequest $request, $id)
+    public function update(UpdateRentalRequest $request, int $id): RentalResource
     {
         $rental = $this->repository->find($id);
         $this->authorize('update', $rental);
@@ -144,7 +146,7 @@ class RentalController extends Controller
         if ($request->has('period_actual_end_date')) {
             $this->carRepository->update($rental->car_id, [
                 'available' => true,
-                'km' => $request->final_km,
+                'km' => $request->integer('final_km'),
             ]);
         }
 
@@ -165,7 +167,7 @@ class RentalController extends Controller
             new OA\Response(response: 404, description: 'Não encontrada'),
         ]
     )]
-    public function destroy($id)
+    public function destroy(int $id): JsonResponse
     {
         $rental = $this->repository->find($id);
         $this->authorize('delete', $rental);

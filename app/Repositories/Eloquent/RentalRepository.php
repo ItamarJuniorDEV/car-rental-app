@@ -2,8 +2,11 @@
 
 namespace App\Repositories\Eloquent;
 
+use App\Exceptions\ResourceNotFoundException;
 use App\Models\Rental;
 use App\Repositories\Contracts\RentalRepositoryInterface;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Model;
 
 class RentalRepository extends BaseRepository implements RentalRepositoryInterface
 {
@@ -12,17 +15,17 @@ class RentalRepository extends BaseRepository implements RentalRepositoryInterfa
         $this->model = $rental;
     }
 
-    public function paginate(int $perPage = 15)
+    public function paginate(int $perPage = 15): LengthAwarePaginator
     {
         return $this->model->with(['client', 'car.line'])->paginate($perPage);
     }
 
-    public function find(int $id): \Illuminate\Database\Eloquent\Model
+    public function find(int $id): Model
     {
         $record = $this->model->with(['client', 'car.line'])->find($id);
 
         if ($record === null) {
-            throw new \App\Exceptions\ResourceNotFoundException;
+            throw new ResourceNotFoundException;
         }
 
         return $record;

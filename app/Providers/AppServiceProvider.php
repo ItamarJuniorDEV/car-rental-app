@@ -36,7 +36,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(RentalRepositoryInterface::class, RentalRepository::class);
     }
 
-    public function boot()
+    public function boot(): void
     {
         Gate::policy(Brand::class, BrandPolicy::class);
         Gate::policy(Line::class, LinePolicy::class);

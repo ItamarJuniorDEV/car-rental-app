@@ -7,12 +7,12 @@ use Illuminate\Validation\Rule;
 
 class UpdateBrandRequest extends FormRequest
 {
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'name' => ['sometimes', 'string', 'max:30', Rule::unique('brands', 'name')->ignore($this->route('brand'))],

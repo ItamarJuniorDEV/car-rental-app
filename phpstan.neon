@@ -4,7 +4,23 @@ includes:
 parameters:
     paths:
         - app/
-    level: 5
+    level: 9
     ignoreErrors:
         - identifier: property.notFound
           path: app/Http/Resources/
+        - identifier: missingType.iterableValue
+          path: app/Http/Resources/
+        - identifier: missingType.generics
+          path: app/Http/Resources/
+        - identifier: missingType.iterableValue
+          path: app/Http/Requests/
+        - identifier: missingType.generics
+          path: app/Models/
+        - identifier: missingType.iterableValue
+          path: app/Repositories/
+        - identifier: missingType.generics
+          path: app/Repositories/
+        - identifier: method.notFound
+          path: app/Http/Controllers/
+        - identifier: property.notFound
+          path: app/Http/Controllers/

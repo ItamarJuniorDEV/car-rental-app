@@ -2,19 +2,22 @@
 
 namespace App\Repositories\Contracts;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Model;
+
 interface CarRepositoryInterface
 {
-    public function paginate(int $perPage = 15);
+    public function paginate(int $perPage = 15): LengthAwarePaginator;
 
-    public function find(int $id);
+    public function find(int $id): Model;
 
-    public function findAvailable(int $perPage = 15);
+    public function findAvailable(int $perPage = 15): LengthAwarePaginator;
 
-    public function searchByPlate(string $plate);
+    public function searchByPlate(string $plate): LengthAwarePaginator;
 
-    public function create(array $data);
+    public function create(array $data): Model;
 
-    public function update(int $id, array $data);
+    public function update(int $id, array $data): Model;
 
     public function delete(int $id): void;
 }

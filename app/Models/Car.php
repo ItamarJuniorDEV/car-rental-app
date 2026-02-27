@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Car extends Model
@@ -21,12 +23,12 @@ class Car extends Model
         'available' => 'boolean',
     ];
 
-    public function line()
+    public function line(): BelongsTo
     {
         return $this->belongsTo(Line::class);
     }
 
-    public function rentals()
+    public function rentals(): HasMany
     {
         return $this->hasMany(Rental::class);
     }
