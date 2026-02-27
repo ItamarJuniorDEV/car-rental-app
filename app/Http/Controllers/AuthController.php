@@ -40,16 +40,16 @@ class AuthController extends Controller
     )]
     public function register(Request $request): JsonResponse
     {
-        $data = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
         $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+            'name' => $request->string('name')->value(),
+            'email' => $request->string('email')->value(),
+            'password' => Hash::make($request->string('password')->value()),
         ]);
 
         $token = $user->createToken('auth')->plainTextToken;
@@ -84,14 +84,14 @@ class AuthController extends Controller
     )]
     public function login(Request $request): JsonResponse
     {
-        $data = $request->validate([
+        $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
         ]);
 
-        $user = User::where('email', $data['email'])->first();
+        $user = User::where('email', $request->string('email')->value())->first();
 
-        if (! $user || ! Hash::check($data['password'], $user->password)) {
+        if (! $user || ! Hash::check($request->string('password')->value(), $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['Credenciais inválidas.'],
             ]);
