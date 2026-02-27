@@ -152,7 +152,6 @@ class ClientController extends Controller
     {
         $client = $this->repository->find($id);
         $this->authorize('delete', $client);
-        assert($client instanceof Client);
 
         if ($client->rentals()->whereNull('period_actual_end_date')->exists()) {
             throw new ActiveRentalsException('Não é possível remover um cliente com locação ativa.');

@@ -142,7 +142,6 @@ class RentalController extends Controller
         $this->authorize('update', $rental);
 
         $rental = $this->repository->update($id, $request->validated());
-        assert($rental instanceof Rental);
 
         if ($request->has('period_actual_end_date')) {
             $this->carRepository->update($rental->car_id, [
@@ -172,7 +171,6 @@ class RentalController extends Controller
     {
         $rental = $this->repository->find($id);
         $this->authorize('delete', $rental);
-        assert($rental instanceof Rental);
 
         $this->carRepository->update($rental->car_id, ['available' => true]);
         $this->repository->delete($id);

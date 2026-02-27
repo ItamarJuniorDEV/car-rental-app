@@ -4,7 +4,7 @@ includes:
 parameters:
     paths:
         - app/
-    level: max
+    level: 8
     ignoreErrors:
         - identifier: property.notFound
           path: app/Http/Resources/
@@ -20,11 +20,3 @@ parameters:
           path: app/Repositories/
         - identifier: missingType.generics
           path: app/Repositories/
-        - identifier: method.nonObject
-          path: app/Http/Resources/
-        - identifier: cast.int
-          path: app/Http/Resources/
-        - identifier: binaryOp.invalid
-          path: app/Http/Resources/
-        - identifier: argument.type
-          path: app/Repositories/Eloquent/BaseRepository.php

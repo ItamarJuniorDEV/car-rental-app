@@ -6,7 +6,6 @@ use App\Exceptions\ResourceNotFoundException;
 use App\Models\Line;
 use App\Repositories\Contracts\LineRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Model;
 
 class LineRepository extends BaseRepository implements LineRepositoryInterface
 {
@@ -20,9 +19,9 @@ class LineRepository extends BaseRepository implements LineRepositoryInterface
         return $this->model->with('brand')->paginate($perPage);
     }
 
-    public function find(int $id): Model
+    public function find(int $id): Line
     {
-        $record = $this->model->with('brand')->find($id);
+        $record = Line::with('brand')->find($id);
 
         if ($record === null) {
             throw new ResourceNotFoundException;
@@ -34,5 +33,19 @@ class LineRepository extends BaseRepository implements LineRepositoryInterface
     public function findByBrand(int $brandId, int $perPage = 15): LengthAwarePaginator
     {
         return $this->model->with('brand')->where('brand_id', $brandId)->paginate($perPage);
+    }
+
+    public function create(array $data): Line
+    {
+        return Line::create($data);
+    }
+
+    public function update(int $id, array $data): Line
+    {
+        $line = $this->find($id);
+        $line->update($data);
+        $line->refresh();
+
+        return $line;
     }
 }

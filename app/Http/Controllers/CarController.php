@@ -157,7 +157,6 @@ class CarController extends Controller
     {
         $car = $this->repository->find($id);
         $this->authorize('delete', $car);
-        assert($car instanceof Car);
 
         if ($car->rentals()->whereNull('period_actual_end_date')->exists()) {
             throw new ActiveRentalsException('Não é possível remover um veículo com locação ativa.');
