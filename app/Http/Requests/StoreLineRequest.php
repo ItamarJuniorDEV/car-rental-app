@@ -16,11 +16,11 @@ class StoreLineRequest extends FormRequest
         return [
             'brand_id' => 'required|integer|exists:brands,id',
             'name' => 'required|string|max:30',
-            'image' => 'required|string|max:100',
-            'door_count' => 'required|integer|min:1',
-            'seats' => 'required|integer|min:1',
-            'air_bag' => 'required|boolean',
-            'abs' => 'required|boolean',
+            'image' => 'nullable|string|max:100',
+            'door_count' => 'nullable|integer|min:1',
+            'seats' => 'nullable|integer|min:1',
+            'air_bag' => 'nullable|boolean',
+            'abs' => 'nullable|boolean',
         ];
     }
 }
